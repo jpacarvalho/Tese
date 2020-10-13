@@ -1,0 +1,36 @@
+
+context UseCase {
+
+	constraint NotIncludeInInclude {
+	
+	
+		check: self.name != null
+
+		message: "Caso de Uso com nome vazio"
+	
+	}
+
+}
+
+context UseCase {
+
+	critique NotIncludeInInclude {
+	
+	
+		check: self.includedepth() < 3
+
+		message: "Caso de Uso " + self.name + " possui uma profundidade de include superior a 2."
+	
+	}
+
+}
+
+@cached
+operation UseCase includedepth() : Integer {
+  if (self.include.size() == 0) {
+    return 0;
+  }
+  else {
+    return 1 + self.include.get(0).addition.includedepth();
+  }
+}
