@@ -1,21 +1,18 @@
 
+
 context UseCase {
 
-	constraint NotIncludeInInclude {
+	//verifica se um use case tem o nome vazio
+	constraint UseCaseEmptyName {
 	
-	
-		check: self.name != null
+		check: self.name != null and self.name.trim() != ""
 
-		message: "Caso de Uso com nome vazio"
+		message: "Caso de Uso com nome vazio."
 	
 	}
-
-}
-
-context UseCase {
-
-	critique NotIncludeInInclude {
 	
+	//verifica se um use case profundidade de include superior a 3
+	critique NotIncludeInInclude {
 	
 		check: self.includedepth() < 3
 
@@ -25,6 +22,30 @@ context UseCase {
 
 }
 
+context Actor {
+
+	//verifica se um ator tem o nome vazio
+	constraint ActorEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Ator com nome vazio."
+	
+	}
+
+}
+
+//verifica se existem atores sem associacao
+constraint ActorsWithoutAssociation {
+	
+	check: actorsWithNoAssociation().size() == 0
+
+	message: "Existem Atores sem Associação."
+	
+}
+
+
+//operacao que devolve profundidade de include
 @cached
 operation UseCase includedepth() : Integer {
   if (self.include.size() == 0) {
@@ -33,4 +54,27 @@ operation UseCase includedepth() : Integer {
   else {
     return 1 + self.include.get(0).addition.includedepth();
   }
+}
+
+//operacao que devolve atores sem associacao
+operation actorsWithNoAssociation() : Set {
+  	var allActors = Actor.getAllOfType().asSet();
+
+	var associations = Association.getAllOfType();
+	var actorsWithAssocitation = new Set();
+
+	for(a : Association in associations){
+		var end1 = a.ownedEnd.get(0).type;
+		if(end1.isTypeOf(Actor)){
+			actorsWithAssocitation.add(end1);
+		}
+	
+		var end2 = a.ownedEnd.get(1).type;
+		if(end2.isTypeOf(Actor)){
+			actorsWithAssocitation.add(end2);
+		}
+	
+	}
+
+	return allActors.excludingAll(actorsWithAssocitation);
 }
