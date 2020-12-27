@@ -6,12 +6,15 @@ public class MainToTest {
 
     public static void main(String[] args) throws Exception {
 
+        File fileEol = new File("src/main/resources/countClass.eol");
+
         File file = new File("src/main/resources/validate.evl");
 
         EvaluationModuleService evaluationModuleService = new EvaluationModuleService();
 
-        evaluationModuleService.evaluateEol(file);
+        evaluationModuleService.evaluateEol(fileEol);
         evaluationModuleService.evaluateEvl(file);
+        evaluationModuleService.test(file);
     }
 
 

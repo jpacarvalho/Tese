@@ -75,6 +75,6 @@ operation actorsWithNoAssociation() : Set {
 		}
 	
 	}
-
+	
 	return allActors.excludingAll(actorsWithAssocitation);
 }

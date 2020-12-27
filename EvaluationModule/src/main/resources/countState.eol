@@ -1,0 +1,1 @@
+State.getAllOfType().size().println();

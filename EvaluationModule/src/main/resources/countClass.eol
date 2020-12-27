@@ -1,0 +1,56 @@
+//Numero de Classes
+Class.getAllOfType().size().println();
+
+//Numero de m�todos de uma classe
+Class.getAllOfType().get(0).operations.size().println();
+
+//Numero de atributos de uma classe
+Class.getAllOfType().get(0).attributes.size().println();
+
+//Numero de Hierarquias de Classes
+hierarchyNumberClasses();
+
+//M�dia de par�metros por opera��o
+averageParameterOperation();
+
+//teste
+//Class.getAllOfType().get(1).operations.get(0).ownedparameters.println();
+//Class.getAllOfType().get(1).operations.get(0).ownedparameters.get(1).direction.asString().println();
+//Class.getAllOfType().get(1).operations.get(0).ownedparameters.get(2).direction.println();
+
+
+
+// operation Numero de Hierarquias de Classes
+operation hierarchyNumberClasses() {
+	var counter = 0;
+	for(c : Class in Class.getAllOfType()){
+		if(c.generalization.size > 0){
+			counter++;
+		}
+	}
+	counter.println();
+}
+
+// operation M�dia de par�metros por opera��o
+operation averageParameterOperation() {
+	var counter = 0;
+	for(c : Class in Class.getAllOfType()){
+		for(o : Operation  in c.operations){
+			for(p : Parameter in o.ownedparameters){
+				if(p.direction.asString().equals("in")){
+					counter++;
+				}
+			}
+		}
+	}
+	
+	var ops = Operation.getAllOfType().size();
+	
+	var mean : Real = 0;
+	if(ops != 0){
+		mean  = counter/ops;
+	}
+	mean.println();
+}
+	
+

@@ -1,0 +1,25 @@
+context Class {
+
+	
+	
+	//verifica se um use case profundidade de include superior a 3
+	critique NotIncludeInInclude {
+	
+		check: self.includedepth() < 3
+
+		message: "Caso de Uso " + self.name + " possui uma profundidade de include superior a 2."
+	
+	}
+
+}
+
+//operacao que devolve profundidade de include
+@cached
+operation Class includedepth() : Integer {
+  if (self.include.size() == 0) {
+    return 0;
+  }
+  else {
+    return 1 + self.include.get(0).addition.includedepth();
+  }
+}

@@ -87,6 +87,15 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>6.0.10.Final</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.uml2/org.eclipse.uml2.uml.resources -->
+		<dependency>
+			<groupId>org.eclipse.uml2</groupId>
+			<artifactId>org.eclipse.uml2.uml.resources</artifactId>
+			<version>3.1.0.v201005031530</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

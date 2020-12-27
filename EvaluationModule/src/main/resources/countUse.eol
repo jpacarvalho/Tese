@@ -1,0 +1,41 @@
+//Numero de Atores
+Actor.getAllOfType().size().println();
+
+//Numero de Use Case
+UseCase.getAllOfType().size().println();
+
+//Numero de Includes
+Include.getAllOfType().size().println();
+
+//Numero de Extends
+Extend.getAllOfType().size().println();
+
+//Numero de Hierarquias de Atores
+hierarchyNumberActors();
+
+//Numero de Hierarquias de UseCases
+hierarchyNumberUseCases();
+
+
+// operation Numero de Hierarquias de Atores
+operation hierarchyNumberActors() {
+	var counter = 0;
+	for(a : Actor in Actor.getAllOfType()){
+		if(a.generalization.size > 0){
+			counter++;
+		}
+	}
+	counter.println();
+}
+
+// operation Numero de Hierarquias de UseCases
+operation hierarchyNumberUseCases() {
+	var counter = 0;
+	for(u : UseCase in UseCase.getAllOfType()){
+		if(u.generalization.size > 0){
+			counter++;
+		}
+	}
+	counter.println();
+}
+
