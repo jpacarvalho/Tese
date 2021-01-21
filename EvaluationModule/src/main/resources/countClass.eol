@@ -18,6 +18,14 @@ averageParameterOperation();
 //Class.getAllOfType().get(1).operations.get(0).ownedparameters.get(1).direction.asString().println();
 //Class.getAllOfType().get(1).operations.get(0).ownedparameters.get(2).direction.println();
 
+var absolutePath = System.context.module.getSourceFile().path;
+var directory = absolutePath.substring(0, absolutePath.length() - 14).println();
+
+var file = new Native("java.io.File")(directory + "myfile.txt");
+var signalsWriter := new Native('java.io.FileWriter')(file);
+signalsWriter.write("ee", 0, 2);
+signalsWriter.close();
+
 
 
 // operation Numero de Hierarquias de Classes

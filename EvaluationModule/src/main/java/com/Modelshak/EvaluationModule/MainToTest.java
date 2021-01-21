@@ -8,7 +8,7 @@ public class MainToTest {
 
         File fileEol = new File("src/main/resources/countClass.eol");
 
-        File file = new File("src/main/resources/validate.evl");
+        File file = new File("src/main/resources/validateUse.evl");
 
         EvaluationModuleService evaluationModuleService = new EvaluationModuleService();
 
