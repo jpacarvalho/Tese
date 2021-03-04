@@ -136,10 +136,10 @@ public class EvaluationModuleService {
 
         }
 
-        String[] splited = line.split("-");
+        String[] splited = line.split(",");
 
         for(int i = 0; i < splited.length; i++){
-            String[] result = splited[i].split(":");
+            String[] result = splited[i].split("-");
 
             metrics.add(new Metric(result[0], result[1]));
         }

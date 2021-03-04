@@ -1,41 +1,72 @@
+var listToSend = new Sequence();
+var result:Real = 0;
+var stringToSend:String = "";
+
 //Numero de Atores
-Actor.getAllOfType().size().println();
+result = Actor.getAllOfType().size().println();
+listToSend.add(new Tuple(id = "actorNumber", value = result));
 
 //Numero de Use Case
-UseCase.getAllOfType().size().println();
+result = UseCase.getAllOfType().size().println();
+listToSend.add(new Tuple(id = "useCaseNumber", value = result));
 
 //Numero de Includes
-Include.getAllOfType().size().println();
+result = Include.getAllOfType().size().println();
+listToSend.add(new Tuple(id = "includeNumber", value = result));
 
 //Numero de Extends
-Extend.getAllOfType().size().println();
+result =Extend.getAllOfType().size().println();
+listToSend.add(new Tuple(id = "extendNumber", value = result));
 
-//Numero de Hierarquias de Atores
-hierarchyNumberActors();
+ //Numero de Hierarquias de Atores
+result = hierarchyNumberActors();
+listToSend.add(new Tuple(id = "hierachyActorNumber", value = result));
 
 //Numero de Hierarquias de UseCases
-hierarchyNumberUseCases();
+result = hierarchyNumberUseCases();
+listToSend.add(new Tuple(id = "hierachyUseCaseNumber", value = result));
+
+//BEGIN escrever para o ficheiro
+for (r : Tuple in listToSend) {
+	var tupleString:String = r.id + "-" + r.value + ",";
+	stringToSend = stringToSend.concat(tupleString);
+}
+
+if(stringToSend.length() > 0){
+	stringToSend = stringToSend.substring(0, stringToSend.length() - 1);
+}
+
+var absolutePath = System.context.module.getSourceFile().path;
+var directory = absolutePath.substring(0, absolutePath.length() - 12);
+
+var file = new Native("java.io.File")(directory + "auxFile.txt");
+var signalsWriter := new Native('java.io.FileWriter')(file);
+signalsWriter.write(stringToSend, 0, stringToSend.length());
+signalsWriter.close();
+//END escrever para o ficheiro
 
 
 // operation Numero de Hierarquias de Atores
-operation hierarchyNumberActors() {
+operation hierarchyNumberActors(): Integer {
 	var counter = 0;
 	for(a : Actor in Actor.getAllOfType()){
 		if(a.generalization.size > 0){
 			counter++;
 		}
 	}
-	counter.println();
+	return counter.println();
 }
 
 // operation Numero de Hierarquias de UseCases
-operation hierarchyNumberUseCases() {
+operation hierarchyNumberUseCases(): Integer {
 	var counter = 0;
 	for(u : UseCase in UseCase.getAllOfType()){
 		if(u.generalization.size > 0){
 			counter++;
 		}
 	}
-	counter.println();
+	return counter.println();
 }
+
+
 

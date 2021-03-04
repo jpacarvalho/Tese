@@ -1,0 +1,149 @@
+var listToSend = new Sequence();
+var result:Real = 0;
+var stringToSend:String = "";
+
+//Numero de Atividades
+result = Activity.getAllOfType().size().println();
+listToSend.add(new Tuple(id = "activityNumber", value = result));
+
+//Numero de nos
+result = Activity.getAllOfType().get(0).nodes.size().println();
+listToSend.add(new Tuple(id = "nodeNumber", value = result));
+
+//Numero de Acoes
+result = Activity.getAllOfType().get(0).getOpaqueNodes().println();
+listToSend.add(new Tuple(id = "actionsNumber", value = result));
+
+//Numero de Acoes Finais
+result = Activity.getAllOfType().get(0).getActivityFinalNodes().println();
+listToSend.add(new Tuple(id = "finalActionsNumber", value = result));
+
+//Numero de Acoes Assincronas
+result = Activity.getAllOfType().get(0).getAcceptEventActions().println();
+listToSend.add(new Tuple(id = "assyncronActionsNumber", value = result));
+
+//Numero de Decision Nodes
+result = Activity.getAllOfType().get(0).getDecisionNodes().println();
+listToSend.add(new Tuple(id = "decisionNodesNumber", value = result));
+
+//Numero de Merfe Nodes
+result = Activity.getAllOfType().get(0).getMergeNodes().println();
+listToSend.add(new Tuple(id = "mergeNodesNumber", value = result));
+
+//Numero de Fork Nodes
+result = Activity.getAllOfType().get(0).getForkNodes().println();
+listToSend.add(new Tuple(id = "forkNodesNumber", value = result));
+
+//Numero de Join Nodes
+result = Activity.getAllOfType().get(0).getJoinNodes().println();
+listToSend.add(new Tuple(id = "joinNodesNumber", value = result));
+
+//BEGIN escrever para o ficheiro
+for (r : Tuple in listToSend) {
+	var tupleString:String = r.id + "-" + r.value + ",";
+	stringToSend = stringToSend.concat(tupleString);
+}
+
+if(stringToSend.length() > 0){
+	stringToSend = stringToSend.substring(0, stringToSend.length() - 1);
+}
+
+var absolutePath = System.context.module.getSourceFile().path;
+var directory = absolutePath.substring(0, absolutePath.length() - 17);
+
+var file = new Native("java.io.File")(directory + "auxFile.txt");
+var signalsWriter := new Native('java.io.FileWriter')(file);
+signalsWriter.write(stringToSend, 0, stringToSend.length());
+signalsWriter.close();
+//END escrever para o ficheiro
+
+//operaçao que devolve o numero acoes
+operation Activity getOpaqueNodes() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : OpaqueAction in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//operaçao que devolve o numero acoes
+operation Activity getActivityFinalNodes() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : ActivityFinalNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//operaçao que devolve o numero AcceptEventAction
+operation Activity getAcceptEventActions() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : AcceptEventAction in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//operaçao que devolve o numero DecisionNode
+operation Activity getDecisionNodes() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : DecisionNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//operaçao que devolve o numero MergeNode
+operation Activity getMergeNodes() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : MergeNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//operaçao que devolve o numero ForkNode
+operation Activity getForkNodes() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : ForkNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//operaçao que devolve o numero JoinNode
+operation Activity getJoinNodes() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : JoinNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}

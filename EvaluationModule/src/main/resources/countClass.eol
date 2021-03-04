@@ -1,46 +1,63 @@
-//Numero de Classes
-Class.getAllOfType().size().println();
+var listToSend = new Sequence();
+var result:Real = 0;
+var stringToSend:String = "";
 
-//Numero de m�todos de uma classe
-Class.getAllOfType().get(0).operations.size().println();
+//Numero de Classes
+result = Class.getAllOfType().size().println();
+listToSend.add(new Tuple(id = "classNumber", value = result));
+
+//Numero de metodos de uma classe
+result = Class.getAllOfType().get(0).operations.size().println();
+listToSend.add(new Tuple(id = "numMetClass", value = result));
 
 //Numero de atributos de uma classe
-Class.getAllOfType().get(0).attributes.size().println();
+result = Class.getAllOfType().get(0).attributes.size().println();
+listToSend.add(new Tuple(id = "avgAttributteClass", value = result));
 
 //Numero de Hierarquias de Classes
-hierarchyNumberClasses();
+result = hierarchyNumberClasses();
+listToSend.add(new Tuple(id = "avgHierarchyClass", value = result));
 
-//M�dia de par�metros por opera��o
-averageParameterOperation();
+//Media de parametros por operacao
+result = averageParameterOperation();
+listToSend.add(new Tuple(id = "avgParameterOperation", value = result));
 
 //teste
 //Class.getAllOfType().get(1).operations.get(0).ownedparameters.println();
 //Class.getAllOfType().get(1).operations.get(0).ownedparameters.get(1).direction.asString().println();
 //Class.getAllOfType().get(1).operations.get(0).ownedparameters.get(2).direction.println();
 
-var absolutePath = System.context.module.getSourceFile().path;
-var directory = absolutePath.substring(0, absolutePath.length() - 14).println();
+//daqui para baixo escrever para o ficheiro
+for (r : Tuple in listToSend) {
+	var tupleString:String = r.id + "-" + r.value + ",";
+	stringToSend = stringToSend.concat(tupleString);
+}
 
-var file = new Native("java.io.File")(directory + "myfile.txt");
+if(stringToSend.length() > 0){
+	stringToSend = stringToSend.substring(0, stringToSend.length() - 1);
+}
+
+var absolutePath = System.context.module.getSourceFile().path;
+var directory = absolutePath.substring(0, absolutePath.length() - 14);
+
+var file = new Native("java.io.File")(directory + "auxFile.txt");
 var signalsWriter := new Native('java.io.FileWriter')(file);
-signalsWriter.write("ee", 0, 2);
+signalsWriter.write(stringToSend, 0, stringToSend.length());
 signalsWriter.close();
 
-
-
 // operation Numero de Hierarquias de Classes
-operation hierarchyNumberClasses() {
+operation hierarchyNumberClasses(): Integer {
 	var counter = 0;
 	for(c : Class in Class.getAllOfType()){
 		if(c.generalization.size > 0){
 			counter++;
 		}
 	}
-	counter.println();
+	return counter.println();
 }
 
 // operation M�dia de par�metros por opera��o
-operation averageParameterOperation() {
+operation averageParameterOperation(): Integer {
 	var counter = 0;
 	for(c : Class in Class.getAllOfType()){
 		for(o : Operation  in c.operations){
@@ -58,7 +75,5 @@ operation averageParameterOperation() {
 	if(ops != 0){
 		mean  = counter/ops;
 	}
-	mean.println();
+	return mean.println();
 }
-	
-

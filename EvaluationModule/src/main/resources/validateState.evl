@@ -1,0 +1,374 @@
+context StateMachine {
+
+	//verifica se uma atividade tem o nome vazio
+	constraint StateMachineEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Atividade com nome vazio."
+	
+	}
+	
+	//verifica se uma state machine tem um estado inicial
+    constraint HasOneInitialState {
+	
+		check: self.initialStateNumber() == 1
+
+		message: "Diagrama de Estados " + self.name + " não tem um estado inicial."
+	
+	}
+	
+	//verifica se uma state machine tem pelo menos um estado final
+    constraint HasFinalState {
+	
+		check: self.finalStateNumber() > 0
+
+		message: "Diagrama de Estados " + self.name + " não tem estados finais."
+	
+	}
+	
+	//verifica se uma state machine e um grafo conexo
+	constraint IsStateDiagramConnected {
+	
+		check: self.isConnected()
+
+		message: "Diagrama de Estados " + self.name + " não é um grafo conexo."
+	
+	}
+	
+	//verifica se uma state machine tem transicoes a chegar ao estado inicial
+	constraint HasIncomingInitial {
+	
+		check: self.incomingInInitial()
+
+		message: "Diagrama de Estados " + self.name + " tem transições a chegar ao estado inicial"
+	
+	}
+	
+	//verifica se uma state machine tem transicoes a partir do estado final
+	constraint HasOutgoingFinal {
+	
+		check: self.outgoingInFinal()
+
+		message: "Diagrama de Estados " + self.name + " tem transições a partir do estado final."
+	
+	}
+	
+	//verfica se os choice de uma stateMachine tem um numero de transicoes correto
+    constraint IsChoiceCorrect {
+	
+		check: self.isChoiceOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"choice\" com um número de transições incorreto."
+	
+	}
+	
+	//verfica se os juntion de uma stateMachine tem um numero de transicoes correto
+    constraint IsJunctionCorrect {
+	
+		check: self.isJunctionOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"junction\" com um número de transições incorreto."
+	
+	}
+	
+	//verfica se os fork de uma stateMachine tem um numero de transicoes correto
+    constraint IsForkCorrect {
+	
+		check: self.isForkOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"fork\" com um número de transições incorreto."
+	
+	}
+	
+	//verfica se os join de uma stateMachine tem um numero de transicoes correto
+    constraint IsJoinCorrect {
+	
+		check: self.isJoinOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"join\" com um número de transições incorreto."
+	
+	}
+	
+
+    constraint Test {
+	
+		check: self.test()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"join\" com um número de transições incorreto."
+	
+	}
+
+}
+
+//devolve o numero de estados iniciais
+operation StateMachine initialStateNumber() : Integer {
+	
+	var regions = self.regions;
+	var states : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		states.addAll(r.subvertex);
+  	}
+  	
+  	var counter = 0;
+  	
+  	for(s : Pseudostate in states){
+  		if(s.kind.asString() == "initial"){
+  			counter++;
+  		}
+  	}
+	
+	return counter;
+}
+
+//devolve o numero de estados finais
+operation StateMachine finalStateNumber() : Integer {
+	
+	var regions = self.regions;
+	var states : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		states.addAll(r.subvertex);
+  	}
+  	
+  	var counter = 0;
+  	
+  	for(s : FinalState in states){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//verifica se o grafo é conexo
+operation StateMachine isConnected() : Boolean {
+	
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var states : Sequence = Sequence{};
+	var endpoints : Set = Set{};
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  		states.addAll(r.subvertex);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		endpoints.add(t.source);
+  		endpoints.add(t.target);
+  	}
+  	
+  	for(i in states){
+  		if(not endpoints.contains(i)){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verifica se um estado inicial é estado destino de uma transicao
+operation StateMachine incomingInInitial() : Boolean {
+	
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.target.type.name.asString() == "Pseudostate"){
+  			if(t.target.asString()  == "initial"){
+  				return false;
+  			}
+  		}
+  	}
+  	
+	
+	return true;
+}
+
+//verifica se um estado final é estado origem de uma transicao
+operation StateMachine outgoingInFinal() : Boolean {
+	
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.source.type.name.asString() == "FinalState"){
+  				return false;
+  		}
+  	}
+  	
+	
+	return true;
+}
+
+//verfica se um choice state esta correto
+operation StateMachine isChoiceOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.source.type.name.asString() == "Pseudostate"){
+  			if(t.source.kind.asString()  == "choice"){
+  				occurences.add(t.source.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um junction state esta correto
+operation StateMachine isJunctionOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.target.type.name.asString() == "Pseudostate"){
+  			if(t.target.kind.asString()  == "junction"){
+  				occurences.add(t.target.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um fork state esta correto
+operation StateMachine isForkOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.source.type.name.asString() == "Pseudostate"){
+  			if(t.source.kind.asString()  == "fork"){
+  				occurences.add(t.source.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um join state esta correto
+operation StateMachine isJoinOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.target.type.name.asString() == "Pseudostate"){
+  			if(t.target.kind.asString()  == "join"){
+  				occurences.add(t.target.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+
+operation StateMachine test() : Boolean{
+
+}

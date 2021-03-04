@@ -1,0 +1,421 @@
+context Activity {
+
+	//verifica se uma atividade tem o nome vazio
+	constraint ActivityEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Atividade com nome vazio."
+	
+	}
+	
+	//verifica se uma atividade tem um node inicial
+    constraint HasOneInitialNode {
+	
+		check: self.initialNodesNumber() == 1
+
+		message: "Atividade " + self.name + " não tem um nó inicial."
+	
+	}
+	
+	//verifica se uma atividade tem pelo menos um node final
+    constraint HasFinalNodes {
+	
+		check: self.finalNodesNumber() > 0
+
+		message: "Atividade " + self.name + " não tem nós finais."
+	
+	}
+	
+	//verifica se um node final tem edges a sair a partir deste
+    constraint HasOutgoingFinal {
+	
+		check: self.outgoingInFinal()
+
+		message: "Existem arcos a sair do nó final."
+	
+	}
+	
+	//verifica se um node inicial tem edges a chegar a este
+    constraint HasIncomingInitial {
+	
+		check: self.incomingInInitial()
+
+		message: "Existem arcos a entrar no nó inicial."
+	
+	}
+	
+	//verfica se o grafo e conexo
+    constraint DiagramIsConnected {
+	
+		check: self.isConnected()
+
+		message: "O diagrama não é um grado conexo"
+	
+	}
+	
+	//verfica se os decision nodes de uma atividades tem um numero de arcos correto
+    constraint IsDecisionNodeCorrect {
+	
+		check: self.isDecisionNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de decision com um número de ligações incorreto."
+	
+	}
+	
+	//verfica se os merge nodes de uma atividades tem um numero de arcos correto
+    constraint IsMergeNodeCorrect {
+	
+		check: self.isMergeNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de merge com um número de ligações incorreto."
+	
+	}
+	
+	//verfica se os fork nodes de uma atividades tem um numero de arcos correto
+    constraint IsForkNodeCorrect {
+	
+		check: self.isForkNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de fork com um número de ligações incorreto."
+	
+	}
+	
+	//verfica se os join nodes de uma atividades tem um numero de arcos correto
+    constraint IsJoinNodeCorrect {
+	
+		check: self.isJoinNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de join com um número de ligações incorreto."
+	
+	}
+	
+	//Verifica se todos os nodes estao dentro de particoes numa dada atividade
+    constraint AreAllNodesInPartitions {
+	
+		check: self.areAllNodesInPartitions()
+
+		message: "Atividade " + self.name + " não tem todos os nós dentro de partições."
+	
+	}
+	
+	//verifica que uma atividade tem uma classe correspondente no diagrama de classes
+    constraint IsActivityInClass {
+	
+		check: self.isActivityInClass()
+
+		message: "Atividade " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
+	
+	}
+	
+	//verifica que uma atividade tem um Use Case correspondente no diagrama de Use Case
+    constraint IsActivityInUseCase {
+	
+		check: self.isActivityInUseCase()
+
+		message: "Atividade " + self.name + " não tem um Use Case com o nome correspondente no diagrama de classes."
+	
+	}
+	
+
+}
+
+context ActivityPartition {
+	
+	//verifica se uma swimlane tem o nome vazio
+	constraint SwimlaneEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Partição com nome vazio."
+	
+	}
+	
+	//verifica se uma swimlane está vazia
+	constraint EmptySwimlane {
+	
+		check: self.nodes.size() > 0
+
+		message: "Atividade sem ações contidas."
+	
+	}
+	
+	//verifica que uma particao tem uma classe correspondente no diagrama de classes
+    constraint IsPartitionInClass {
+	
+		check: self.isPartitionInClass()
+
+		message: "Partição " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
+	
+	}
+	
+	//verifica que uma particao tem um ator correspondente no diagrama de Use Case
+    constraint IsPartitionInActors {
+	
+		check: self.isPartitionInActors()
+
+		message: "Partição " + self.name + " não tem um ator com o nome correspondente no diagrama de Use Case."
+	
+	}
+	
+}
+
+//devolve o numero de nodes iniciais
+operation Activity initialNodesNumber() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : InitialNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//devolve o numero de nodes finais
+operation Activity finalNodesNumber() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : ActivityFinalNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//se nodes finais tem outgoing edges
+operation Activity outgoingInFinal() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	for(n : ActivityFinalNode in nodes){
+  		
+  		if(n.outgoing.size() != 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//se nodes iniciais tem incoming edges
+operation Activity incomingInInitial() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	for(n : InitialNode in nodes){
+  		
+  		if(n.incoming.size() != 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se ha nos sem ligacao
+operation Activity isConnected() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : InitialNode in nodes){
+  		
+  		if(i.outgoing.size() == 0){
+  			return false;
+  		}
+  	}
+  	
+  	for(a : ActivityFinalNode in nodes){
+  		
+  		if(a.incoming.size() == 0){
+  			return false;
+  		}
+  	}
+  	
+  	for(o : OpaqueAction in nodes){
+  		
+  		if(o.outgoing.size() == 0 or o.incoming.size() == 0){
+  			return false;
+  		}
+  	}
+  	
+  	for(n : AcceptEventAction in nodes){
+  		
+  		if(n.outgoing.size() == 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um decision node esta correto
+operation Activity isDecisionNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : DecisionNode in nodes){
+  	
+  		if(i.incoming.size() > 0){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 1){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+//verfica se um merge node esta correto
+operation Activity isMergeNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : MergeNode in nodes){
+  	
+  		if(i.incoming.size() > 1){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 0){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+//verfica se um fork node esta correto
+operation Activity isForkNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : ForkNode in nodes){
+  	
+  		if(i.incoming.size() > 0){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 1){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+//verfica se um join node esta correto
+operation Activity isJoinNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : JoinNode in nodes){
+  	
+  		if(i.incoming.size()  > 1){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size()  > 0){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+//verifica se o numero de nos de uma atividade e igual ao numero de nos dentro de particoes
+operation Activity areAllNodesInPartitions() : Boolean {
+  	
+  	var nodeNumber = self.nodes.size();
+  	var nodesinpartitionsNumber = 0;
+  	
+  	
+  	for(p : ActivityPartition in self.group){
+  		nodesinpartitionsNumber += p.node.size();
+  	}
+  	
+  	if(nodeNumber != nodesinpartitionsNumber){
+  		return false;
+  	}
+  	
+  	
+	return true;
+}
+
+//verifica se o nome da atividade esta presente nos nomes das classes do diagrama de classes
+operation Activity isActivityInClass() : Boolean {
+  	
+  	var activityName = self.name;
+  	var classNames : Sequence = Sequence{};
+  	
+  	for(c : Class in Class.getAllOfType()){
+		classNames.add(c.name);
+	}
+  	
+  	if(classNames.count(activityName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+
+//verifica se o nome da particao esta presente nos nomes das classes do diagrama de classes
+operation ActivityPartition isPartitionInClass() : Boolean {
+  	
+  	var partitionName = self.name;
+  	var classNames : Sequence = Sequence{};
+  	
+  	for(c : Class in Class.getAllOfType()){
+		classNames.add(c.name);
+	}
+  	
+  	if(classNames.count(partitionName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+
+//verifica se o nome da atividade esta presente nos nomes dos use cases
+operation Activity isActivityInUseCase() : Boolean {
+  	
+  	var activityName = self.name;
+  	var useCaseNames : Sequence = Sequence{};
+  	
+  	for(u : UseCase in UseCase.getAllOfType()){
+		useCaseNames.add(u.name);
+	}
+  	
+  	if(useCaseNames.count(activityName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+
+//verifica se o nome da particao esta presente nos nomes dos atores
+operation ActivityPartition isPartitionInActors() : Boolean {
+  	
+  	var partitionName = self.name;
+  	var actorNames : Sequence = Sequence{};
+  	
+  	for(a : Actor in Actor.getAllOfType()){
+		actorNames.add(a.name);
+	}
+  	
+  	if(actorNames.count(partitionName) == 0){
+  		return false;
+  	}
+  	
+	return true;
+}

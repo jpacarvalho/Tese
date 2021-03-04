@@ -1,25 +1,72 @@
 context Class {
+	
+	//verifica se classes não estáticas possuem operações estáticas
+	constraint AbstractOperationInNonAbstractClass {
+	
+		check: self.abstractOperationInNonAbstractClass() 
 
+		message: "Classe " + self.name + " não é abstrata mas possui operações abstratas."
 	
+	}
 	
-	//verifica se um use case profundidade de include superior a 3
-	critique NotIncludeInInclude {
+	//verifica se existe profundidade de herança superior a 1
+	critique ExcedesheritageDepth {
 	
-		check: self.includedepth() < 3
+		check: self.heritageDepth() < 2
 
-		message: "Caso de Uso " + self.name + " possui uma profundidade de include superior a 2."
+		message: "Classe " + self.name + " possui uma profundidade de herança superior a 1."
+	
+	}
+	
+	//
+	constraint Test {
+	
+		check: self.test() 
+
+		message: "test"
 	
 	}
 
 }
 
-//operacao que devolve profundidade de include
+
+//operacao que verfica que classes não estáticas possuem operações estáticas
+operation Class abstractOperationInNonAbstractClass() {
+ if(self.isAbstract == false){
+ 	var operations = self.operations;
+ 	for(o : Operation in operations){
+ 		if(o.isAbstract){
+ 			return false;
+ 		}
+ 		
+ 	}
+ 	
+ }
+ return true;
+}
+
+//operacao que devolve profundidade de herança
 @cached
-operation Class includedepth() : Integer {
-  if (self.include.size() == 0) {
+operation Class heritageDepth() : Integer {
+  if (self.generalization.size() == 0) {
     return 0;
   }
   else {
-    return 1 + self.include.get(0).addition.includedepth();
+    return 1 + self.generalization.get(0).general.heritageDepth();
   }
 }
+
+operation Class test(){
+	self.name.println();
+	for(a in self.attributes){
+		if(a.type.qualifiedName == "UML::Property"){
+			a.println();
+		}
+	}
+	return true;
+}
+
+
+
+
+

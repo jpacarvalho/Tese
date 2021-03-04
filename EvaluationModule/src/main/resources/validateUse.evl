@@ -19,6 +19,15 @@ context UseCase {
 		message: "Caso de Uso " + self.name + " possui uma profundidade de include superior a 2."
 	
 	}
+	
+	//verifica se o use case tem um verbo no nome
+	constraint HasUseCaseNounAndVerb {
+	 
+		check: self.checkNameVerbNoun()
+
+		message: "O nome do use case " + self.name + " não possui um verbo e um nome."
+	
+	}
 
 }
 
@@ -41,6 +50,15 @@ constraint ActorsWithoutAssociation {
 	check: actorsWithNoAssociation().size() == 0
 
 	message: "Existem Atores sem Associação."
+	
+}
+
+//verifica se estão a ser usados links use em contexto de use case
+constraint DoesUseCasehasVerbInName {
+	
+	check: Usage.getAllOfType() == 0
+
+	message: "Links Usage inválidos no contexto de Use Cases."
 	
 }
 
@@ -77,4 +95,43 @@ operation actorsWithNoAssociation() : Set {
 	}
 	
 	return allActors.excludingAll(actorsWithAssocitation);
+}
+
+operation UseCase checkNameVerbNoun() : Boolean {
+
+	var verbInSentence : Boolean = false;
+	var nounInSentence : Boolean = false;
+
+	var splitedName = self.name.split(" ");
+	splitedName.println();
+	
+	for(s : String in splitedName){
+	
+		var url =  new Native("java.net.URL")("https://www.dictionaryapi.com/api/v3/references/thesaurus/json/" + s + "?key=4c831ba9-3885-42e6-8712-ddb5149b7534");
+		
+        // Open a connection(?) on the URL(??) and cast the response(???)
+        var connection : Native("java.net.HttpURLConnection") = url.openConnection();
+
+        // Now it's "open", we can set the request method, headers etc.
+        connection.setRequestProperty("accept", "application/json");
+
+        // This line makes the request
+        var responseStream : Native("java.io.InputStream")  = connection.getInputStream();
+        
+		var streamReader = new Native("java.io.InputStreamReader")(responseStream);
+        var bufferedReader = new Native("java.io.BufferedReader")(streamReader); 
+        
+       	var Collectors = Native("java.util.stream.Collectors");
+       	var result : String = bufferedReader.lines().collect(Collectors.joining("\n"));
+        result.println();
+         
+       	if("\"fl\":verb".isSubstringOf(result)){
+       		verbInSentence = true;
+       	}else if("\"fl\":noun".isSubstringOf(result)){
+       		nounInSentence = true;
+       	}
+      }
+	
+	return verbInSentence and nounInSentence;
+	
 }
