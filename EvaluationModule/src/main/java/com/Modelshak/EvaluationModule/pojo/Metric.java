@@ -2,8 +2,8 @@ package com.Modelshak.EvaluationModule.pojo;
 
 public class Metric {
 
-    public String id;
-    public String value;
+    private String id;
+    private String value;
 
     public Metric(String id, String value) {
         this.id = id;

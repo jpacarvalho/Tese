@@ -2,9 +2,15 @@ package com.Modelshak.EvaluationModule.pojo;
 
 public class Validation {
 
-    public String id;
-    public boolean value;
-    public String description;
+    private String id;
+    private boolean isWarning;
+    private String description;
+
+    public Validation(String id, boolean isWarning, String description) {
+        this.id = id;
+        this.isWarning = isWarning;
+        this.description = description;
+    }
 
     public String getId() {
         return id;
@@ -14,12 +20,12 @@ public class Validation {
         this.id = id;
     }
 
-    public boolean isValue() {
-        return value;
+    public boolean isWarning() {
+        return isWarning;
     }
 
-    public void setValue(boolean value) {
-        this.value = value;
+    public void setWarning(boolean warning) {
+        this.isWarning = warning;
     }
 
     public String getDescription() {
