@@ -1,6 +1,7 @@
 package com.Modelshak.EvaluationModule;
 
 import com.Modelshak.EvaluationModule.enumerations.EolEnum;
+import com.Modelshak.EvaluationModule.enumerations.EvlEnum;
 import com.Modelshak.EvaluationModule.pojo.Metric;
 import com.Modelshak.EvaluationModule.pojo.Validation;
 import com.Modelshak.EvaluationModule.pojo.ValidationResult;
@@ -50,7 +51,7 @@ public class EvaluationModuleService {
         obj.put("warnings", warnings);
 
         File file = new File(filename);
-        file.delete();
+        //file.delete();
 
         return obj;
     }
@@ -68,8 +69,8 @@ public class EvaluationModuleService {
     private List<ValidationResult> evaluateEvl(String filename) throws Exception {
         List<ValidationResult> validations = new ArrayList<>();
 
-        for (EolEnum eolfile : EolEnum.values()) {
-            ValidationResult singleResult = evaluateSingleEvl(filename, eolfile.getPath());
+        for (EvlEnum evlfile : EvlEnum.values()) {
+            ValidationResult singleResult = evaluateSingleEvl(filename, evlfile.getPath());
             validations.add(singleResult);
         }
 
@@ -136,14 +137,15 @@ public class EvaluationModuleService {
 
         }
 
-        String[] splited = line.split(",");
+        if(line != null && !line.isEmpty()) {
+            String[] splited = line.split(",");
 
-        for(int i = 0; i < splited.length; i++){
-            String[] result = splited[i].split("-");
+            for (int i = 0; i < splited.length; i++) {
+                String[] result = splited[i].split("-");
 
-            metrics.add(new Metric(result[0], result[1]));
+                metrics.add(new Metric(result[0], result[1]));
+            }
         }
-
         File file = new File(path);
         file.delete();
 
