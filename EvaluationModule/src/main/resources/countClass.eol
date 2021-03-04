@@ -3,16 +3,20 @@ var result:Real = 0;
 var stringToSend:String = "";
 
 //Numero de Classes
-result = Class.getAllOfType().size().println();
+result = Class.getAllOfType().size();
 listToSend.add(new Tuple(id = "classNumber", value = result));
 
 //Numero de metodos de uma classe
-result = Class.getAllOfType().get(0).operations.size().println();
-listToSend.add(new Tuple(id = "numMetClass", value = result));
+if(Class.getAllOfType().size() > 0){
+	result = Class.getAllOfType().get(0).operations.size();
+	listToSend.add(new Tuple(id = "numMetClass", value = result));
+}
 
 //Numero de atributos de uma classe
-result = Class.getAllOfType().get(0).attributes.size().println();
-listToSend.add(new Tuple(id = "avgAttributteClass", value = result));
+if(Class.getAllOfType().size() > 0){
+	result = Class.getAllOfType().get(0).attributes.size();
+	listToSend.add(new Tuple(id = "avgAttributteClass", value = result));
+}
 
 //Numero de Hierarquias de Classes
 result = hierarchyNumberClasses();
@@ -53,7 +57,7 @@ operation hierarchyNumberClasses(): Integer {
 			counter++;
 		}
 	}
-	return counter.println();
+	return counter;
 }
 
 // operation M�dia de par�metros por opera��o
@@ -75,5 +79,5 @@ operation averageParameterOperation(): Integer {
 	if(ops != 0){
 		mean  = counter/ops;
 	}
-	return mean.println();
+	return mean;
 }
