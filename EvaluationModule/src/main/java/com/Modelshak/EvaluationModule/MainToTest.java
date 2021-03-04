@@ -1,5 +1,7 @@
 package com.Modelshak.EvaluationModule;
 
+import org.json.JSONObject;
+
 import java.io.File;
 
 public class MainToTest {
@@ -11,8 +13,9 @@ public class MainToTest {
 
        EvaluationModuleService evaluationModuleService = new EvaluationModuleService();
 
-       evaluationModuleService.evaluateModel(filename);
-
+        JSONObject obj = new JSONObject();
+        obj.put(filename, evaluationModuleService.evaluateModel(filename));
+        obj.isEmpty();
     }
 
 
