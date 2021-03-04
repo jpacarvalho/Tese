@@ -2,7 +2,7 @@ var listToSend = new Sequence();
 var result:Real = 0;
 var stringToSend:String = "";
 
-result = State.getAllOfType().size().println();
+result = State.getAllOfType().size();
 listToSend.add(new Tuple(id = "stateNumber", value = result));
 
 

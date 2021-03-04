@@ -34,7 +34,7 @@ public class EvaluationModuleService {
 
         JSONObject obj = new JSONObject();
 
-        getFileFrombucket(filename);
+        //getFileFrombucket(filename);
         List<Metric> metrics = evaluateEol(filename);
         List<ValidationResult> validations = evaluateEvl(filename);
         List<Validation> errors = new ArrayList<>();
@@ -124,7 +124,7 @@ public class EvaluationModuleService {
 
     private List<Metric> getMetrics() {
 
-        String path = "auxFile.txt";
+        String path = "src/main/resources/auxFile.txt";
         List<Metric> metrics = new ArrayList<>();
         Path p = Paths.get(path);
         String line = "";

@@ -3,39 +3,39 @@ var result:Real = 0;
 var stringToSend:String = "";
 
 //Numero de Atividades
-result = Activity.getAllOfType().size().println();
+result = Activity.getAllOfType().size();
 listToSend.add(new Tuple(id = "activityNumber", value = result));
 
 //Numero de nos
-result = Activity.getAllOfType().get(0).nodes.size().println();
+result = Activity.getAllOfType().get(0).nodes.size();
 listToSend.add(new Tuple(id = "nodeNumber", value = result));
 
 //Numero de Acoes
-result = Activity.getAllOfType().get(0).getOpaqueNodes().println();
+result = Activity.getAllOfType().get(0).getOpaqueNodes();
 listToSend.add(new Tuple(id = "actionsNumber", value = result));
 
 //Numero de Acoes Finais
-result = Activity.getAllOfType().get(0).getActivityFinalNodes().println();
+result = Activity.getAllOfType().get(0).getActivityFinalNodes();
 listToSend.add(new Tuple(id = "finalActionsNumber", value = result));
 
 //Numero de Acoes Assincronas
-result = Activity.getAllOfType().get(0).getAcceptEventActions().println();
+result = Activity.getAllOfType().get(0).getAcceptEventActions();
 listToSend.add(new Tuple(id = "assyncronActionsNumber", value = result));
 
 //Numero de Decision Nodes
-result = Activity.getAllOfType().get(0).getDecisionNodes().println();
+result = Activity.getAllOfType().get(0).getDecisionNodes();
 listToSend.add(new Tuple(id = "decisionNodesNumber", value = result));
 
 //Numero de Merfe Nodes
-result = Activity.getAllOfType().get(0).getMergeNodes().println();
+result = Activity.getAllOfType().get(0).getMergeNodes();
 listToSend.add(new Tuple(id = "mergeNodesNumber", value = result));
 
 //Numero de Fork Nodes
-result = Activity.getAllOfType().get(0).getForkNodes().println();
+result = Activity.getAllOfType().get(0).getForkNodes();
 listToSend.add(new Tuple(id = "forkNodesNumber", value = result));
 
 //Numero de Join Nodes
-result = Activity.getAllOfType().get(0).getJoinNodes().println();
+result = Activity.getAllOfType().get(0).getJoinNodes();
 listToSend.add(new Tuple(id = "joinNodesNumber", value = result));
 
 //BEGIN escrever para o ficheiro
