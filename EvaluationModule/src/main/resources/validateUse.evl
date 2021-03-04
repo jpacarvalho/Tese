@@ -34,7 +34,7 @@ context UseCase {
 context Actor {
 
 	//verifica se um ator tem o nome vazio
-	constraint ActorEmptyName {
+	critique ActorEmptyName {
 	
 		check: self.name != null and self.name.trim() != ""
 
@@ -103,7 +103,6 @@ operation UseCase checkNameVerbNoun() : Boolean {
 	var nounInSentence : Boolean = false;
 
 	var splitedName = self.name.split(" ");
-	splitedName.println();
 	
 	for(s : String in splitedName){
 	
@@ -123,7 +122,6 @@ operation UseCase checkNameVerbNoun() : Boolean {
         
        	var Collectors = Native("java.util.stream.Collectors");
        	var result : String = bufferedReader.lines().collect(Collectors.joining("\n"));
-        result.println();
          
        	if("\"fl\":verb".isSubstringOf(result)){
        		verbInSentence = true;
