@@ -4,9 +4,12 @@ import com.Modelshak.EvaluationModule.pojo.Project;
 import com.Modelshak.EvaluationModule.pojo.Request;
 import com.google.gson.Gson;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -17,17 +20,22 @@ public class EvaluationModuleController {
     @Autowired
     private EvaluationModuleService evaluationModuleService;
 
+    private static final Logger logger = LoggerFactory.getLogger(EvaluationModuleController.class);
+
     @PostMapping("/evaluateSingle")
     @ResponseBody
     public JSONObject evaluateSingle(HttpServletRequest request) throws Exception {
 
         String jsonString = request.getParameter("data");
+        logger.info("request: {}", jsonString);
+
         Gson gson = new Gson();
         Request requestObject = gson.fromJson(jsonString, Request.class);
 
         JSONObject obj = new JSONObject();
         String key = requestObject.getProjects().get(0).getKey();
         obj.put(key, evaluationModuleService.evaluateModel(key));
+        logger.info("response: {}", obj);
         return obj;
 
     }
@@ -37,6 +45,7 @@ public class EvaluationModuleController {
     public JSONObject evaluateBatch(HttpServletRequest request) throws Exception {
 
         String jsonString = request.getParameter("data");
+        logger.info("request: {}", jsonString);
         Gson gson = new Gson();
         Request requestObject = gson.fromJson(jsonString, Request.class);
 
@@ -54,7 +63,7 @@ public class EvaluationModuleController {
                 }
 
         );
-
+        logger.info("response: {}", obj);
         return obj;
     }
 

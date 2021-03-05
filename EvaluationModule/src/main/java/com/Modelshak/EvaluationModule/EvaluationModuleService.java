@@ -15,6 +15,8 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.execute.UnsatisfiedConstraint;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,13 +32,30 @@ import java.util.List;
 @Validated
 public class EvaluationModuleService {
 
-    public JSONObject evaluateModel(String filename) throws Exception {
+    private static final Logger logger = LoggerFactory.getLogger(EvaluationModuleService.class);
+
+    public JSONObject evaluateModel(String filename) {
 
         JSONObject obj = new JSONObject();
 
         getFileFrombucket(filename);
-        List<Metric> metrics = evaluateEol(filename);
-        List<ValidationResult> validations = evaluateEvl(filename);
+
+        List<Metric> metrics = new ArrayList<>();
+        List<ValidationResult> validations = new ArrayList<>();
+
+        try {
+            metrics = evaluateEol(filename);
+        } catch (Exception e) {
+            logger.error("Nao foi possivel efetuar o calculo de metricas para o modelo {}", filename);
+        }
+
+
+        try {
+            validations = evaluateEvl(filename);
+        } catch (Exception e) {
+            logger.error("Nao foi possivel efetuar o calculo de metricas para o modelo {}", filename);
+        }
+
         List<Validation> errors = new ArrayList<>();
         List<Validation> warnings = new ArrayList<>();
 
@@ -48,6 +67,10 @@ public class EvaluationModuleService {
         obj.put("metrics", metrics);
         obj.put("errors", errors);
         obj.put("warnings", warnings);
+
+        logger.info("Número de métricas no modelo {}: {}", filename, metrics.size());
+        logger.info("Número de errors no modelo {}: {}",filename, errors.size());
+        logger.info("Número de warnings no modelo {}: {}", filename, warnings.size());
 
         File file = new File(filename);
         file.delete();
@@ -132,8 +155,9 @@ public class EvaluationModuleService {
         try {
             BufferedReader reader = Files.newBufferedReader(p);
             line = reader.readLine();
-        } catch (IOException ignored) {
 
+        } catch (IOException ignored) {
+            logger.error("Falha ao ler linha ficheiro auxiliar");
         }
 
         String[] splited = line.split(",");
@@ -154,29 +178,25 @@ public class EvaluationModuleService {
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.EU_WEST_2).build();
         String bucketName = "myawsbucketupload";
 
-        System.out.format("Downloading %s from S3 bucket %s...\n", key, bucketName);
+        logger.info("Downloading {} from bucket {}", key, bucketName);
 
         try {
             S3Object o = s3.getObject(bucketName, key);
             S3ObjectInputStream s3is = o.getObjectContent();
             FileOutputStream fos = new FileOutputStream(key);
-            byte[] read_buf = new byte[1024];
-            int read_len;
-            while ((read_len = s3is.read(read_buf)) > 0) {
-                fos.write(read_buf, 0, read_len);
+            byte[] readBuf = new byte[1024];
+            int readLen;
+            while ((readLen = s3is.read(readBuf)) > 0) {
+                fos.write(readBuf, 0, readLen);
             }
             s3is.close();
             fos.close();
         } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
-            System.exit(1);
-        } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getErrorMessage());
             System.exit(1);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
-
         }
     }
 
