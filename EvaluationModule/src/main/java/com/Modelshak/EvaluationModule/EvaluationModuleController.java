@@ -1,11 +1,14 @@
 package com.Modelshak.EvaluationModule;
 
+import com.Modelshak.EvaluationModule.pojo.Project;
+import com.Modelshak.EvaluationModule.pojo.Request;
+import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -14,24 +17,37 @@ public class EvaluationModuleController {
     @Autowired
     private EvaluationModuleService evaluationModuleService;
 
-    @GetMapping("/evaluateSingle")
-    public JSONObject evaluateSingle(@RequestParam String fileModel) throws Exception {
+    @PostMapping("/evaluateSingle")
+    @ResponseBody
+    public JSONObject evaluateSingle(HttpServletRequest request) throws Exception {
+
+        String jsonString = request.getParameter("data");
+        Gson gson = new Gson();
+        Request requestObject = gson.fromJson(jsonString, Request.class);
 
         JSONObject obj = new JSONObject();
-        obj.put(fileModel, evaluationModuleService.evaluateModel(fileModel));
+        String key = requestObject.getProjects().get(0).getKey();
+        obj.put(key, evaluationModuleService.evaluateModel(key));
         return obj;
 
     }
 
-    @GetMapping("/evaluateBatch")
-    public JSONObject evaluateBatch(@RequestParam List<String> fileList) throws Exception {
+    @PostMapping("/evaluateBatch")
+    @ResponseBody
+    public JSONObject evaluateBatch(HttpServletRequest request) throws Exception {
+
+        String jsonString = request.getParameter("data");
+        Gson gson = new Gson();
+        Request requestObject = gson.fromJson(jsonString, Request.class);
 
         JSONObject obj = new JSONObject();
+
+        List<Project> fileList = requestObject.getProjects();
 
         fileList.forEach( fileModel ->
                 {
                     try {
-                        obj.put(fileModel, evaluationModuleService.evaluateModel(fileModel));
+                        obj.put(fileModel.getKey(), evaluationModuleService.evaluateModel(fileModel.getKey()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
