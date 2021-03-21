@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,6 +27,10 @@ public class EvaluationModuleController {
     @PostMapping("/evaluateSingle")
     @ResponseBody
     public JSONObject evaluateSingle(HttpServletRequest request) throws Exception {
+        ArrayList<String> list = Collections.list(request.getParameterNames());
+        logger.info("parametros recebidos: {}", list.size() );
+
+        list.forEach(p -> logger.info("parametro: {}", p));
 
         String jsonString = request.getParameter("data");
         logger.info("request: {}", jsonString);

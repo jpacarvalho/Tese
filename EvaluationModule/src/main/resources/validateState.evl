@@ -91,13 +91,13 @@ context StateMachine {
 	}
 	
 
-    constraint Test {
+   /* constraint Test {
 	
 		check: self.test()
 
 		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"join\" com um número de transições incorreto."
 	
-	}
+	}*/
 
 }
 

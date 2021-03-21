@@ -1,6 +1,7 @@
 package com.Modelshak.EvaluationModule;
 
 import com.Modelshak.EvaluationModule.enumerations.EolEnum;
+import com.Modelshak.EvaluationModule.enumerations.EvlEnum;
 import com.Modelshak.EvaluationModule.pojo.Metric;
 import com.Modelshak.EvaluationModule.pojo.Validation;
 import com.Modelshak.EvaluationModule.pojo.ValidationResult;
@@ -34,7 +35,7 @@ public class EvaluationModuleService {
 
     private static final Logger logger = LoggerFactory.getLogger(EvaluationModuleService.class);
 
-    public JSONObject evaluateModel(String filename) {
+    public JSONObject evaluateModel(String filename) throws Exception {
 
         JSONObject obj = new JSONObject();
 
@@ -78,6 +79,7 @@ public class EvaluationModuleService {
         return obj;
     }
     private List<Metric> evaluateEol(String filename) throws Exception {
+
         List<Metric> metrics = new ArrayList<>();
 
         for (EolEnum eolfile : EolEnum.values()) {
@@ -91,8 +93,8 @@ public class EvaluationModuleService {
     private List<ValidationResult> evaluateEvl(String filename) throws Exception {
         List<ValidationResult> validations = new ArrayList<>();
 
-        for (EolEnum eolfile : EolEnum.values()) {
-            ValidationResult singleResult = evaluateSingleEvl(filename, eolfile.getPath());
+        for (EvlEnum evlfile : EvlEnum.values()) {
+            ValidationResult singleResult = evaluateSingleEvl(filename, evlfile.getPath());
             validations.add(singleResult);
         }
 
@@ -147,7 +149,7 @@ public class EvaluationModuleService {
 
     private List<Metric> getMetrics() {
 
-        String path = "auxFile.txt";
+        String path = "src/main/resources/auxFile.txt";
         List<Metric> metrics = new ArrayList<>();
         Path p = Paths.get(path);
         String line = "";
@@ -155,20 +157,27 @@ public class EvaluationModuleService {
         try {
             BufferedReader reader = Files.newBufferedReader(p);
             line = reader.readLine();
+            logger.info("{}", line);
+
+            if(line != null && !line.isEmpty()){
+                String[] splited = line.split(",");
+
+
+                for(int i = 0; i < splited.length; i++){
+                    String[] result = splited[i].split("-");
+
+                    metrics.add(new Metric(result[0], result[1]));
+                }
+            }
 
         } catch (IOException ignored) {
             logger.error("Falha ao ler linha ficheiro auxiliar");
         }
 
-        String[] splited = line.split(",");
 
-        for(int i = 0; i < splited.length; i++){
-            String[] result = splited[i].split("-");
-
-            metrics.add(new Metric(result[0], result[1]));
-        }
 
         File file = new File(path);
+        logger.info("aux: {}", file.length());
         file.delete();
 
         return metrics;
@@ -193,10 +202,8 @@ public class EvaluationModuleService {
             fos.close();
         } catch (AmazonServiceException e) {
             logger.error(e.getErrorMessage());
-            System.exit(1);
         } catch (IOException e) {
             logger.error(e.getMessage());
-            System.exit(1);
         }
     }
 
