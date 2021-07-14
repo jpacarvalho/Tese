@@ -2,11 +2,15 @@ package com.Modelshak.EvaluationModule;
 
 import com.Modelshak.EvaluationModule.pojo.Project;
 import com.Modelshak.EvaluationModule.pojo.Request;
+import com.Modelshak.EvaluationModule.pojo.Response;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,15 +28,17 @@ public class EvaluationModuleController {
 
     private static final Logger logger = LoggerFactory.getLogger(EvaluationModuleController.class);
 
-    @PostMapping("/evaluateSingle")
+    @PostMapping(path = "/evaluateSingle", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public JSONObject evaluateSingle(HttpServletRequest request) throws Exception {
+    public ResponseEntity<String> evaluateSingle(HttpServletRequest request) throws Exception {
         ArrayList<String> list = Collections.list(request.getParameterNames());
         logger.info("parametros recebidos: {}", list.size() );
 
         list.forEach(p -> logger.info("parametro: {}", p));
 
+
         String jsonString = request.getParameter("data");
+
         logger.info("request: {}", jsonString);
 
         Gson gson = new Gson();
@@ -40,9 +46,10 @@ public class EvaluationModuleController {
 
         JSONObject obj = new JSONObject();
         String key = requestObject.getProjects().get(0).getKey();
-        obj.put(key, evaluationModuleService.evaluateModel(key));
+        obj = obj.put(key, evaluationModuleService.evaluateModel(key));
         logger.info("response: {}", obj);
-        return obj;
+
+        return new ResponseEntity<>(obj.toString(), HttpStatus.OK);
 
     }
 
