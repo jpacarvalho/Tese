@@ -1,6 +1,6 @@
 context Class {
 	
-	//verifica se classes não estáticas possuem operações estáticas
+	//verifica se classes não abstrata possuem operações abstrata
 	constraint AbstractOperationInNonAbstractClass {
 	
 		check: self.abstractOperationInNonAbstractClass() 
@@ -18,19 +18,38 @@ context Class {
 	
 	}
 	
-	//
-	constraint Test {
+	//verifica que uma classe não possui um atributo do tipo classe filha
+	constraint FatherWithChildInAttributes {
 	
-		check: self.test() 
+		check: self.fatherWithChildOperationInAtrributes()
 
-		message: "test"
+		message: "Classe " + self.name + " possui um atributo com tipo referente a uma classe extendida a partir desta."
 	
 	}
+	
+	//verifica que uma classe não possui uma operação com um parâmetro do tipo classe filha
+	constraint FatherWithChildInOpParameters {
+	
+		check: self.fatherWithChildOperationInOpParameters()
+
+		message: "Classe " + self.name + " possui um parâmetro de uma operação com tipo referente a uma classe extendida a partir desta."
+	
+	}
+	
 
 }
 
+//Verifica que não existem classes com nomes repetidos
+	constraint RepeatedName {
+	
+		check: repeatedNameOperation()
 
-//operacao que verfica que classes não estáticas possuem operações estáticas
+		message: "Existem classes com nomes repetidos no mesmo package"
+	
+	}
+
+
+//operacao que verfica que classes não abstrata possuem operações abstrata
 operation Class abstractOperationInNonAbstractClass() {
  if(self.isAbstract == false){
  	var operations = self.operations;
@@ -48,7 +67,7 @@ operation Class abstractOperationInNonAbstractClass() {
 //operacao que devolve profundidade de herança
 @cached
 operation Class heritageDepth() : Integer {
-  if (self.generalization.size() == 0) {
+  if (self.generalization.size() == 0 or not (self.type.instanceClass == "org.eclipse.uml2.uml.Class")) {
     return 0;
   }
   else {
@@ -56,13 +75,65 @@ operation Class heritageDepth() : Integer {
   }
 }
 
-operation Class test(){
-	self.name.println();
-	for(a in self.attributes){
-		if(a.type.qualifiedName == "UML::Property"){
-			a.println();
+operation Class fatherWithChildOperationInAtrributes(){
+
+	var name = self.name;
+	if(self.generalization.size > 0){
+		var father = self.generalization.get(0).general;
+		
+		for(a in self.attributes){
+		if(a.type != null and a.type.qualifiedName.contains(name)){
+			return false;
+			
 		}
+			
+		}
+		
 	}
+	
+	
+	return true;
+}
+
+operation Class fatherWithChildOperationInOpParameters(){
+	
+	var name = self.name;
+	if(self.generalization.size > 0){
+		var father = self.generalization.get(0).general;
+		
+		for(a in self.operations){
+			for(o in a.ownedparameters){
+				if(o.type.qualifiedName.contains(name)){
+					return false;
+			
+				}
+			}
+			
+		}
+		
+	}
+	
+	
+	return true;
+}
+
+operation repeatedNameOperation() : Boolean{
+	
+	var setName = new Set();
+	var listName = new List();
+	
+	for(c : Class in Class.getAllOfType()){
+		setName.add(c.name);
+		listName.add(c.name);
+	}
+	
+	if(setName.size != listName.size){
+		return false;
+	}
+	
+	
+	
+	
 	return true;
 }
 

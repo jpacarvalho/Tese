@@ -9,6 +9,10 @@ context Activity {
 	
 	}
 	
+}
+
+context Activity {
+	
 	//verifica se uma atividade tem um node inicial
     constraint HasOneInitialNode {
 	
@@ -17,6 +21,12 @@ context Activity {
 		message: "Atividade " + self.name + " não tem um nó inicial."
 	
 	}
+	
+}
+
+
+	
+context Activity {
 	
 	//verifica se uma atividade tem pelo menos um node final
     constraint HasFinalNodes {
@@ -27,6 +37,12 @@ context Activity {
 	
 	}
 	
+}
+
+
+	
+context Activity {
+	
 	//verifica se um node final tem edges a sair a partir deste
     constraint HasOutgoingFinal {
 	
@@ -35,6 +51,10 @@ context Activity {
 		message: "Existem arcos a sair do nó final."
 	
 	}
+	
+}
+	
+context Activity {
 	
 	//verifica se um node inicial tem edges a chegar a este
     constraint HasIncomingInitial {
@@ -45,6 +65,25 @@ context Activity {
 	
 	}
 	
+}
+
+//se nodes iniciais tem incoming edges
+operation Activity incomingInInitial() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	for(n : InitialNode in nodes){
+  		
+  		if(n.incoming.size() != 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+	
+context Activity {
+	
 	//verfica se o grafo e conexo
     constraint DiagramIsConnected {
 	
@@ -53,6 +92,12 @@ context Activity {
 		message: "O diagrama não é um grado conexo"
 	
 	}
+	
+}
+
+
+	
+context Activity {
 	
 	//verfica se os decision nodes de uma atividades tem um numero de arcos correto
     constraint IsDecisionNodeCorrect {
@@ -63,6 +108,10 @@ context Activity {
 	
 	}
 	
+}
+	
+context Activity {
+	
 	//verfica se os merge nodes de uma atividades tem um numero de arcos correto
     constraint IsMergeNodeCorrect {
 	
@@ -71,6 +120,12 @@ context Activity {
 		message: "Atividade " + self.name + " possui um nó de merge com um número de ligações incorreto."
 	
 	}
+	
+}
+
+
+	
+context Activity {
 	
 	//verfica se os fork nodes de uma atividades tem um numero de arcos correto
     constraint IsForkNodeCorrect {
@@ -81,80 +136,17 @@ context Activity {
 	
 	}
 	
+}
+
+
+context Activity {
+	
 	//verfica se os join nodes de uma atividades tem um numero de arcos correto
     constraint IsJoinNodeCorrect {
 	
 		check: self.isJoinNodeOk()
 
 		message: "Atividade " + self.name + " possui um nó de join com um número de ligações incorreto."
-	
-	}
-	
-	//Verifica se todos os nodes estao dentro de particoes numa dada atividade
-    constraint AreAllNodesInPartitions {
-	
-		check: self.areAllNodesInPartitions()
-
-		message: "Atividade " + self.name + " não tem todos os nós dentro de partições."
-	
-	}
-	
-	//verifica que uma atividade tem uma classe correspondente no diagrama de classes
-    constraint IsActivityInClass {
-	
-		check: self.isActivityInClass()
-
-		message: "Atividade " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
-	
-	}
-	
-	//verifica que uma atividade tem um Use Case correspondente no diagrama de Use Case
-    constraint IsActivityInUseCase {
-	
-		check: self.isActivityInUseCase()
-
-		message: "Atividade " + self.name + " não tem um Use Case com o nome correspondente no diagrama de classes."
-	
-	}
-	
-
-}
-
-context ActivityPartition {
-	
-	//verifica se uma swimlane tem o nome vazio
-	constraint SwimlaneEmptyName {
-	
-		check: self.name != null and self.name.trim() != ""
-
-		message: "Partição com nome vazio."
-	
-	}
-	
-	//verifica se uma swimlane está vazia
-	constraint EmptySwimlane {
-	
-		check: self.nodes.size() > 0
-
-		message: "Atividade sem ações contidas."
-	
-	}
-	
-	//verifica que uma particao tem uma classe correspondente no diagrama de classes
-    constraint IsPartitionInClass {
-	
-		check: self.isPartitionInClass()
-
-		message: "Partição " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
-	
-	}
-	
-	//verifica que uma particao tem um ator correspondente no diagrama de Use Case
-    constraint IsPartitionInActors {
-	
-		check: self.isPartitionInActors()
-
-		message: "Partição " + self.name + " não tem um ator com o nome correspondente no diagrama de Use Case."
 	
 	}
 	
@@ -201,19 +193,140 @@ operation Activity outgoingInFinal() : Boolean {
 	return true;
 }
 
-//se nodes iniciais tem incoming edges
-operation Activity incomingInInitial() : Boolean {
+//verfica se um decision node esta correto
+operation Activity isDecisionNodeOk() : Boolean {
   	
   	var nodes = self.nodes;
   	
-  	for(n : InitialNode in nodes){
+  	
+  	for(i : DecisionNode in nodes){
+  	
+  		if(i.incoming.size() > 0){
+  			return false;
+  		}
   		
-  		if(n.incoming.size() != 0){
+  		if(i.outgoing.size() > 1){
   			return false;
   		}
   	}
-	
+  	
 	return true;
+}
+
+//verfica se um join node esta correto
+operation Activity isJoinNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : JoinNode in nodes){
+  	
+  		if(i.incoming.size()  > 1){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size()  > 0){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+	
+context Activity {
+	
+	//Verifica se todos os nodes estao dentro de particoes numa dada atividade
+    constraint AreAllNodesInPartitions {
+	
+		check: self.areAllNodesInPartitions()
+
+		message: "Atividade " + self.name + " não tem todos os nós dentro de partições."
+	
+	}
+	
+}
+
+
+	
+context Activity {
+	
+	//verifica que uma atividade tem uma classe correspondente no diagrama de classes
+    constraint IsActivityInClass {
+	
+		check: self.isActivityInClass()
+
+		message: "Atividade " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
+	
+	}
+	
+}
+	
+context Activity {
+	
+	//verifica que uma atividade tem um Use Case correspondente no diagrama de Use Case
+    constraint IsActivityInUseCase {
+	
+		check: self.isActivityInUseCase()
+
+		message: "Atividade " + self.name + " não tem um Use Case com o nome correspondente no diagrama de classes."
+	
+	}
+		
+}
+
+
+
+context ActivityPartition {
+	
+	//verifica se uma swimlane tem o nome vazio
+	constraint SwimlaneEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Partição com nome vazio."
+	
+	}
+	
+}
+	
+context ActivityPartition {
+	
+	//verifica se uma swimlane está vazia
+	constraint EmptySwimlane {
+	
+		check: self.nodes.size() > 0
+
+		message: "Atividade sem ações contidas."
+	
+	}
+	
+}
+	
+context ActivityPartition {
+	
+	//verifica que uma particao tem uma classe correspondente no diagrama de classes
+    constraint IsPartitionInClass {
+	
+		check: self.isPartitionInClass()
+
+		message: "Partição " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
+	
+	}
+	
+}
+
+
+context ActivityPartition {
+	
+	//verifica que uma particao tem um ator correspondente no diagrama de Use Case
+    constraint IsPartitionInActors {
+	
+		check: self.isPartitionInActors()
+
+		message: "Partição " + self.name + " não tem um ator com o nome correspondente no diagrama de Use Case."
+	
+	}
+	
 }
 
 //verfica se ha nos sem ligacao
@@ -253,26 +366,6 @@ operation Activity isConnected() : Boolean {
 	return true;
 }
 
-//verfica se um decision node esta correto
-operation Activity isDecisionNodeOk() : Boolean {
-  	
-  	var nodes = self.nodes;
-  	
-  	
-  	for(i : DecisionNode in nodes){
-  	
-  		if(i.incoming.size() > 0){
-  			return false;
-  		}
-  		
-  		if(i.outgoing.size() > 1){
-  			return false;
-  		}
-  	}
-  	
-	return true;
-}
-
 //verfica se um merge node esta correto
 operation Activity isMergeNodeOk() : Boolean {
   	
@@ -286,46 +379,6 @@ operation Activity isMergeNodeOk() : Boolean {
   		}
   		
   		if(i.outgoing.size() > 0){
-  			return false;
-  		}
-  	}
-  	
-	return true;
-}
-
-//verfica se um fork node esta correto
-operation Activity isForkNodeOk() : Boolean {
-  	
-  	var nodes = self.nodes;
-  	
-  	
-  	for(i : ForkNode in nodes){
-  	
-  		if(i.incoming.size() > 0){
-  			return false;
-  		}
-  		
-  		if(i.outgoing.size() > 1){
-  			return false;
-  		}
-  	}
-  	
-	return true;
-}
-
-//verfica se um join node esta correto
-operation Activity isJoinNodeOk() : Boolean {
-  	
-  	var nodes = self.nodes;
-  	
-  	
-  	for(i : JoinNode in nodes){
-  	
-  		if(i.incoming.size()  > 1){
-  			return false;
-  		}
-  		
-  		if(i.outgoing.size()  > 0){
   			return false;
   		}
   	}
@@ -369,23 +422,6 @@ operation Activity isActivityInClass() : Boolean {
 	return true;
 }
 
-//verifica se o nome da particao esta presente nos nomes das classes do diagrama de classes
-operation ActivityPartition isPartitionInClass() : Boolean {
-  	
-  	var partitionName = self.name;
-  	var classNames : Sequence = Sequence{};
-  	
-  	for(c : Class in Class.getAllOfType()){
-		classNames.add(c.name);
-	}
-  	
-  	if(classNames.count(partitionName) == 0){
-  		return false;
-  	}
-  
-	return true;
-}
-
 //verifica se o nome da atividade esta presente nos nomes dos use cases
 operation Activity isActivityInUseCase() : Boolean {
   	
@@ -403,6 +439,24 @@ operation Activity isActivityInUseCase() : Boolean {
 	return true;
 }
 
+//verifica se o nome da particao esta presente nos nomes das classes do diagrama de classes
+operation ActivityPartition isPartitionInClass() : Boolean {
+  	
+  	var partitionName = self.name;
+  	var classNames : Sequence = Sequence{};
+  	
+  	for(c : Class in Class.getAllOfType()){
+		classNames.add(c.name);
+	}
+  	
+  	if(classNames.count(partitionName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+	
+
 //verifica se o nome da particao esta presente nos nomes dos atores
 operation ActivityPartition isPartitionInActors() : Boolean {
   	
@@ -419,3 +473,24 @@ operation ActivityPartition isPartitionInActors() : Boolean {
   	
 	return true;
 }
+
+//verfica se um fork node esta correto
+operation Activity isForkNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : ForkNode in nodes){
+  	
+  		if(i.incoming.size() > 0){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 1){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+	

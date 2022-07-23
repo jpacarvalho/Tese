@@ -1,8 +1,12 @@
 package com.Modelshak.EvaluationModule;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+
 import com.Modelshak.EvaluationModule.pojo.Project;
 import com.Modelshak.EvaluationModule.pojo.Request;
-import com.Modelshak.EvaluationModule.pojo.Response;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,11 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @RestController
 public class EvaluationModuleController {

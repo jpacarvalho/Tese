@@ -1,0 +1,167 @@
+var listToSend = new Sequence();
+var result:Real = 0;
+var stringToSend:String = "";
+
+//Numero de Estados
+result = State.getAllOfType().size();
+listToSend.add(new Tuple(id = "stateNumber87", value = result));
+
+//Numero de nos
+if(Activity.getAllOfType().size() > 0){
+	result = 0;
+	for (r : Activity in Activity.getAllOfType()) {
+		result += r.nodes.size();
+	}
+	listToSend.add(new Tuple(id = "nodeNumber22", value = result));
+}
+
+//Numero de Atores
+
+result = Actor.getAllOfType().size();
+listToSend.add(new Tuple(id = "numAtores10", value = result));
+
+//Numero de Use Case
+result = UseCase.getAllOfType().size();
+listToSend.add(new Tuple(id = "numUseCase11", value = result));
+
+//Numero de Hierarquias de Atores
+result = hierarchyNumberActors();
+result += hierarchyNumberUseCases();
+listToSend.add(new Tuple(id = "numHierarquiaAtores12", value = result));
+
+
+
+//Numero de Classes
+if(Class.getAllOfType().size() > 0){
+	result = 0;
+	var classes:Real = 0;
+	for(c : Class in Class.getAllOfType()){
+		
+	
+		classes++;
+		
+	}
+	result = classes;
+	listToSend.add(new Tuple(id = "numMetClass60", value = result));
+}
+
+//Numero de metodos de uma classe
+if(Class.getAllOfType().size() > 0){
+	result = 0;
+	var metodos:Real = 0;
+	var classes:Real = 0;
+	for(c : Class in Class.getAllOfType()){
+		
+			metodos += c.operations.size();
+			classes++;
+		
+	}
+	result = metodos/classes;
+	listToSend.add(new Tuple(id = "avgOperationClass63", value = result));
+}
+
+//Numero de atributos de uma classe
+if(Class.getAllOfType().size() > 0){
+	result = 0;
+	var atributos:Real = 0;
+	var classes:Real = 0;
+	for(c : Class in Class.getAllOfType()){
+		
+			atributos += c.attributes.size();
+			classes++;
+		
+	}
+	result = atributos/classes;
+	listToSend.add(new Tuple(id = "avgAttributteClass62", value = result));
+}
+
+
+//Numero de Hierarquias de Classes
+result = hierarchyNumberClasses();
+listToSend.add(new Tuple(id = "hierarchyClass61", value = result));
+
+
+
+//Media de parametros por operacao
+result = averageParameterOperation();
+listToSend.add(new Tuple(id = "avgParameterOperation64", value = result));
+
+
+
+
+
+//daqui para baixo escrever para o ficheiro
+for (r : Tuple in listToSend) {
+	var tupleString:String = r.id + "-" + r.value + ",";
+	stringToSend = stringToSend.concat(tupleString);
+}
+
+if(stringToSend.length() > 0){
+	stringToSend = stringToSend.substring(0, stringToSend.length() - 1);
+}
+
+var absolutePath = System.context.module.getSourceFile().path;
+var directory = absolutePath.substring(0, absolutePath.length() - 14);
+
+var file = new Native("java.io.File")(directory + "auxFile.txt");
+var signalsWriter := new Native('java.io.FileWriter')(file);
+signalsWriter.write(stringToSend, 0, stringToSend.length());
+signalsWriter.close();
+//END escrever para o ficheiro
+
+
+// operation Numero de Hierarquias de Atores
+operation hierarchyNumberActors(): Integer {
+	var counter = 0;
+	for(a : Actor in Actor.getAllOfType()){
+		if(a.generalization.size > 0){
+			counter++;
+		}
+	}
+	return counter;
+}
+
+// operation Numero de Hierarquias de UseCases
+operation hierarchyNumberUseCases(): Integer {
+	var counter = 0;
+	for(u : UseCase in UseCase.getAllOfType()){
+		if(u.generalization.size > 0){
+			counter++;
+		}
+	}
+	return counter;
+}
+
+// operation Numero de Hierarquias de Classes
+operation hierarchyNumberClasses(): Integer {
+	var counter = 0;
+	for(c : Class in Class.getAllOfType()){
+		if(c.generalization.size > 0){
+			counter++;
+		}
+	}
+	return counter;
+}
+
+// operation M�dia de par�metros por opera��o
+operation averageParameterOperation(): Integer {
+	var counter:Real = 0;
+	for(c : Class in Class.getAllOfType()){
+	
+		for(o : Operation  in c.operations){
+			for(p : Parameter in o.ownedparameters){
+				if(p.direction.asString().equals("in")){
+					counter++;
+				}
+			}
+		}
+	}
+	
+	var ops = Operation.getAllOfType().size();
+	
+	var mean : Real = 0;
+	if(ops != 0){
+		mean  = counter/ops;
+	}
+	return mean;
+}

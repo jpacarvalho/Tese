@@ -4,27 +4,29 @@ var stringToSend:String = "";
 
 //Numero de Atores
 result = Actor.getAllOfType().size();
-listToSend.add(new Tuple(id = "actorNumber", value = result));
+listToSend.add(new Tuple(id = "numAtores", value = result));
 
 //Numero de Use Case
 result = UseCase.getAllOfType().size();
-listToSend.add(new Tuple(id = "useCaseNumber", value = result));
+listToSend.add(new Tuple(id = "numUseCase", value = result));
 
 //Numero de Includes
 result = Include.getAllOfType().size();
-listToSend.add(new Tuple(id = "includeNumber", value = result));
+listToSend.add(new Tuple(id = "numIncludes", value = result));
 
 //Numero de Extends
 result =Extend.getAllOfType().size();
-listToSend.add(new Tuple(id = "extendNumber", value = result));
+listToSend.add(new Tuple(id = "numExtends", value = result));
 
- //Numero de Hierarquias de Atores
+//Numero de Hierarquias de Atores
 result = hierarchyNumberActors();
-listToSend.add(new Tuple(id = "hierachyActorNumber", value = result));
+listToSend.add(new Tuple(id = "numHierarquiaAtores", value = result));
 
 //Numero de Hierarquias de UseCases
 result = hierarchyNumberUseCases();
-listToSend.add(new Tuple(id = "hierachyUseCaseNumber", value = result));
+listToSend.add(new Tuple(id = "numHierarquiaUseCases", value = result));
+
+
 
 //BEGIN escrever para o ficheiro
 for (r : Tuple in listToSend) {

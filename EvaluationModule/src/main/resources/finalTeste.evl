@@ -1,0 +1,1101 @@
+context Activity {
+
+	//verifica se uma atividade tem o nome vazio
+	constraint ActivityEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Atividade com nome vazio."
+	
+	}
+	
+}
+
+context Activity {
+	
+	//verifica se uma atividade tem um node inicial
+    constraint HasOneInitialNode {
+	
+		check: self.initialNodesNumber() == 1
+
+		message: "Atividade " + self.name + " não tem um nó inicial."
+	
+	}
+	
+}
+
+
+	
+context Activity {
+	
+	//verifica se uma atividade tem pelo menos um node final
+    constraint HasFinalNodes {
+	
+		check: self.finalNodesNumber() > 0
+
+		message: "Atividade " + self.name + " não tem nós finais."
+	
+	}
+	
+}
+
+
+	
+context Activity {
+	
+	//verifica se um node final tem edges a sair a partir deste
+    constraint HasOutgoingFinal {
+	
+		check: self.outgoingInFinal()
+
+		message: "Existem arcos a sair do nó final."
+	
+	}
+	
+}
+	
+context Activity {
+	
+	//verifica se um node inicial tem edges a chegar a este
+    constraint HasIncomingInitial {
+	
+		check: self.incomingInInitial()
+
+		message: "Existem arcos a entrar no nó inicial."
+	
+	}
+	
+}
+
+//se nodes iniciais tem incoming edges
+operation Activity incomingInInitial() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	for(n : InitialNode in nodes){
+  		
+  		if(n.incoming.size() != 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+	
+context Activity {
+	
+	//verfica se o grafo e conexo
+    constraint DiagramIsConnected {
+	
+		check: self.isConnected()
+
+		message: "O diagrama não é um grado conexo"
+	
+	}
+	
+}
+
+
+	
+context Activity {
+	
+	//verfica se os decision nodes de uma atividades tem um numero de arcos correto
+    constraint IsDecisionNodeCorrect {
+	
+		check: self.isDecisionNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de decision com um número de ligações incorreto."
+	
+	}
+	
+}
+	
+context Activity {
+	
+	//verfica se os merge nodes de uma atividades tem um numero de arcos correto
+    constraint IsMergeNodeCorrect {
+	
+		check: self.isMergeNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de merge com um número de ligações incorreto."
+	
+	}
+	
+}
+
+
+	
+context Activity {
+	
+	//verfica se os fork nodes de uma atividades tem um numero de arcos correto
+    constraint IsForkNodeCorrect {
+	
+		check: self.isForkNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de fork com um número de ligações incorreto."
+	
+	}
+	
+}
+
+
+context Activity {
+	
+	//verfica se os join nodes de uma atividades tem um numero de arcos correto
+    constraint IsJoinNodeCorrect {
+	
+		check: self.isJoinNodeOk()
+
+		message: "Atividade " + self.name + " possui um nó de join com um número de ligações incorreto."
+	
+	}
+	
+}
+
+//devolve o numero de nodes iniciais
+operation Activity initialNodesNumber() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : InitialNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//devolve o numero de nodes finais
+operation Activity finalNodesNumber() : Integer {
+  	
+  	var nodes = self.nodes;
+  	var counter = 0;
+  	
+  	for(n : ActivityFinalNode in nodes){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//se nodes finais tem outgoing edges
+operation Activity outgoingInFinal() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	for(n : ActivityFinalNode in nodes){
+  		
+  		if(n.outgoing.size() != 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um decision node esta correto
+operation Activity isDecisionNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : DecisionNode in nodes){
+  	
+  		if(i.incoming.size() > 0){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 1){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+//verfica se um join node esta correto
+operation Activity isJoinNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : JoinNode in nodes){
+  	
+  		if(i.incoming.size()  > 1){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size()  > 0){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+	
+context Activity {
+	
+	//Verifica se todos os nodes estao dentro de particoes numa dada atividade
+    constraint AreAllNodesInPartitions {
+	
+		check: self.areAllNodesInPartitions()
+
+		message: "Atividade " + self.name + " não tem todos os nós dentro de partições."
+	
+	}
+	
+}
+
+
+	
+context Activity {
+	
+	//verifica que uma atividade tem uma classe correspondente no diagrama de classes
+    constraint IsActivityInClass {
+	
+		check: self.isActivityInClass()
+
+		message: "Atividade " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
+	
+	}
+	
+}
+	
+context Activity {
+	
+	//verifica que uma atividade tem um Use Case correspondente no diagrama de Use Case
+    constraint IsActivityInUseCase {
+	
+		check: self.isActivityInUseCase()
+
+		message: "Atividade " + self.name + " não tem um Use Case com o nome correspondente no diagrama de classes."
+	
+	}
+		
+}
+
+
+
+context ActivityPartition {
+	
+	//verifica se uma swimlane tem o nome vazio
+	constraint SwimlaneEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Partição com nome vazio."
+	
+	}
+	
+}
+	
+context ActivityPartition {
+	
+	//verifica se uma swimlane está vazia
+	constraint EmptySwimlane {
+	
+		check: self.nodes.size() > 0
+
+		message: "Atividade sem ações contidas."
+	
+	}
+	
+}
+	
+context ActivityPartition {
+	
+	//verifica que uma particao tem uma classe correspondente no diagrama de classes
+    constraint IsPartitionInClass {
+	
+		check: self.isPartitionInClass()
+
+		message: "Partição " + self.name + " não tem uma classe com o nome correspondente no diagrama de classes."
+	
+	}
+	
+}
+
+
+context ActivityPartition {
+	
+	//verifica que uma particao tem um ator correspondente no diagrama de Use Case
+    constraint IsPartitionInActors {
+	
+		check: self.isPartitionInActors()
+
+		message: "Partição " + self.name + " não tem um ator com o nome correspondente no diagrama de Use Case."
+	
+	}
+	
+}
+
+//verfica se ha nos sem ligacao
+operation Activity isConnected() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : InitialNode in nodes){
+  		
+  		if(i.outgoing.size() == 0){
+  			return false;
+  		}
+  	}
+  	
+  	for(a : ActivityFinalNode in nodes){
+  		
+  		if(a.incoming.size() == 0){
+  			return false;
+  		}
+  	}
+  	
+  	for(o : OpaqueAction in nodes){
+  		
+  		if(o.outgoing.size() == 0 or o.incoming.size() == 0){
+  			return false;
+  		}
+  	}
+  	
+  	for(n : AcceptEventAction in nodes){
+  		
+  		if(n.outgoing.size() == 0){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um merge node esta correto
+operation Activity isMergeNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : MergeNode in nodes){
+  	
+  		if(i.incoming.size() > 1){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 0){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+//verifica se o numero de nos de uma atividade e igual ao numero de nos dentro de particoes
+operation Activity areAllNodesInPartitions() : Boolean {
+  	
+  	var nodeNumber = self.nodes.size();
+  	var nodesinpartitionsNumber = 0;
+  	
+  	
+  	for(p : ActivityPartition in self.group){
+  		nodesinpartitionsNumber += p.node.size();
+  	}
+  	
+  	if(nodeNumber != nodesinpartitionsNumber){
+  		return false;
+  	}
+  	
+  	
+	return true;
+}
+
+//verifica se o nome da atividade esta presente nos nomes das classes do diagrama de classes
+operation Activity isActivityInClass() : Boolean {
+  	
+  	var activityName = self.name;
+  	var classNames : Sequence = Sequence{};
+  	
+  	for(c : Class in Class.getAllOfType()){
+		classNames.add(c.name);
+	}
+  	
+  	if(classNames.count(activityName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+
+//verifica se o nome da atividade esta presente nos nomes dos use cases
+operation Activity isActivityInUseCase() : Boolean {
+  	
+  	var activityName = self.name;
+  	var useCaseNames : Sequence = Sequence{};
+  	
+  	for(u : UseCase in UseCase.getAllOfType()){
+		useCaseNames.add(u.name);
+	}
+  	
+  	if(useCaseNames.count(activityName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+
+//verifica se o nome da particao esta presente nos nomes das classes do diagrama de classes
+operation ActivityPartition isPartitionInClass() : Boolean {
+  	
+  	var partitionName = self.name;
+  	var classNames : Sequence = Sequence{};
+  	
+  	for(c : Class in Class.getAllOfType()){
+		classNames.add(c.name);
+	}
+  	
+  	if(classNames.count(partitionName) == 0){
+  		return false;
+  	}
+  
+	return true;
+}
+	
+
+//verifica se o nome da particao esta presente nos nomes dos atores
+operation ActivityPartition isPartitionInActors() : Boolean {
+  	
+  	var partitionName = self.name;
+  	var actorNames : Sequence = Sequence{};
+  	
+  	for(a : Actor in Actor.getAllOfType()){
+		actorNames.add(a.name);
+	}
+  	
+  	if(actorNames.count(partitionName) == 0){
+  		return false;
+  	}
+  	
+	return true;
+}
+
+//verfica se um fork node esta correto
+operation Activity isForkNodeOk() : Boolean {
+  	
+  	var nodes = self.nodes;
+  	
+  	
+  	for(i : ForkNode in nodes){
+  	
+  		if(i.incoming.size() > 0){
+  			return false;
+  		}
+  		
+  		if(i.outgoing.size() > 1){
+  			return false;
+  		}
+  	}
+  	
+	return true;
+}
+
+context UseCase {
+
+	//verifica se um use case tem o nome vazio
+	constraint UseCaseEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Caso de Uso com nome vazio."
+	
+	}
+}
+	
+context UseCase {
+	
+	//verifica se um use case profundidade de include superior a 3
+	critique NotIncludeInInclude {
+	
+		check: self.includedepth() < 3
+
+		message: "Caso de Uso " + self.name + " possui uma profundidade de include superior a 2."
+	
+	}
+	
+}
+
+//operacao que devolve profundidade de include
+@cached
+operation UseCase includedepth() : Integer {
+  if (self.include.size() == 0) {
+    return 0;
+  }
+  else {
+    return 1 + self.include.get(0).addition.includedepth();
+  }
+}
+	
+
+
+context Actor {
+
+	//verifica se um ator tem o nome vazio
+	critique ActorEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Ator com nome vazio."
+	
+	}
+
+}
+
+//verifica se existem atores sem associacao
+constraint ActorsWithoutAssociation {
+	
+	check: actorsWithNoAssociation().size() == 0
+
+	message: "Existem Atores sem Associação."
+	
+}
+
+//operacao que devolve atores sem associacao
+operation actorsWithNoAssociation() : Set {
+  	var allActors = Actor.getAllOfType().asSet();
+
+	var associations = Association.getAllOfType();
+	var actorsWithAssocitation = new Set();
+
+	for(a : Association in associations){
+		if(a.ownedEnd.size > 0){
+			var end1 = a.ownedEnd.get(0).type;
+			if(end1.isTypeOf(Actor)){
+				actorsWithAssocitation.add(end1);
+			}
+	
+			if(a.ownedEnd.size > 1){
+				var end2 = a.ownedEnd.get(1).type;
+				if(end2.isTypeOf(Actor)){
+					actorsWithAssocitation.add(end2);
+				}
+			}
+		}
+	
+	}
+	
+	return allActors.excludingAll(actorsWithAssocitation);
+}
+
+//verifica se estão a ser usados links use em contexto de use case
+constraint DoesUseCasehasVerbInName {
+	
+	check: Usage.getAllOfType() == 0
+
+	message: "Links Usage inválidos no contexto de Use Cases."
+	
+}
+
+context StateMachine {
+
+	//verifica se uma atividade tem o nome vazio
+	constraint StateMachineEmptyName {
+	
+		check: self.name != null and self.name.trim() != ""
+
+		message: "Estado com nome vazio."
+	
+	}
+	
+	//verifica se uma state machine tem um estado inicial
+    constraint HasOneInitialState {
+	
+		check: self.initialStateNumber() == 1
+
+		message: "Diagrama de Estados " + self.name + " não tem um estado inicial."
+	
+	}
+	
+	//verifica se uma state machine tem pelo menos um estado final
+    constraint HasFinalState {
+	
+		check: self.finalStateNumber() > 0
+
+		message: "Diagrama de Estados " + self.name + " não tem estados finais."
+	
+	}
+	
+	//verifica se uma state machine e um grafo conexo
+	constraint IsStateDiagramConnected {
+	
+		check: self.isConnected()
+
+		message: "Diagrama de Estados " + self.name + " não é um grafo conexo."
+	
+	}
+	
+	//verifica se uma state machine tem transicoes a chegar ao estado inicial
+	constraint HasIncomingInitial {
+	
+		check: self.incomingInInitial()
+
+		message: "Diagrama de Estados " + self.name + " tem transições a chegar ao estado inicial"
+	
+	}
+	
+	//verifica se uma state machine tem transicoes a partir do estado final
+	constraint HasOutgoingFinal {
+	
+		check: self.outgoingInFinal()
+
+		message: "Diagrama de Estados " + self.name + " tem transições a partir do estado final."
+	
+	}
+	
+	//verfica se os choice de uma stateMachine tem um numero de transicoes correto
+    constraint IsChoiceCorrect {
+	
+		check: self.isChoiceOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"choice\" com um número de transições incorreto."
+	
+	}
+	
+	//verfica se os juntion de uma stateMachine tem um numero de transicoes correto
+    constraint IsJunctionCorrect {
+	
+		check: self.isJunctionOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"junction\" com um número de transições incorreto."
+	
+	}
+	
+	//verfica se os fork de uma stateMachine tem um numero de transicoes correto
+    constraint IsForkCorrect {
+	
+		check: self.isForkOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"fork\" com um número de transições incorreto."
+	
+	}
+	
+	//verfica se os join de uma stateMachine tem um numero de transicoes correto
+    constraint IsJoinCorrect {
+	
+		check: self.isJoinOk()
+
+		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"join\" com um número de transições incorreto."
+	
+	}
+	
+
+}
+
+//devolve o numero de estados iniciais
+operation StateMachine initialStateNumber() : Integer {
+	
+	var regions = self.regions;
+	var states : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		states.addAll(r.subvertex);
+  	}
+  	
+  	var counter = 0;
+  	
+  	for(s : Pseudostate in states){
+  		if(s.kind.asString() == "initial"){
+  			counter++;
+  		}
+  	}
+	
+	return counter;
+}
+
+//devolve o numero de estados finais
+operation StateMachine finalStateNumber() : Integer {
+	
+	var regions = self.regions;
+	var states : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		states.addAll(r.subvertex);
+  	}
+  	
+  	var counter = 0;
+  	
+  	for(s : FinalState in states){
+  		counter++;
+  	}
+	
+	return counter;
+}
+
+//verifica se o grafo é conexo
+operation StateMachine isConnected() : Boolean {
+	
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var states : Sequence = Sequence{};
+	var endpoints : Set = Set{};
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  		states.addAll(r.subvertex);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		endpoints.add(t.source);
+  		endpoints.add(t.target);
+  	}
+  	
+  	for(i in states){
+  		if(not endpoints.contains(i)){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verifica se um estado inicial é estado destino de uma transicao
+operation StateMachine incomingInInitial() : Boolean {
+	
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.target.type.name.asString() == "Pseudostate"){
+  			if(t.target.asString()  == "initial"){
+  				return false;
+  			}
+  		}
+  	}
+  	
+	
+	return true;
+}
+
+//verifica se um estado final é estado origem de uma transicao
+operation StateMachine outgoingInFinal() : Boolean {
+	
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.source.type.name.asString() == "FinalState"){
+  				return false;
+  		}
+  	}
+  	
+	
+	return true;
+}
+
+//verfica se um choice state esta correto
+operation StateMachine isChoiceOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.source.type.name.asString() == "Pseudostate"){
+  			if(t.source.kind.asString()  == "choice"){
+  				occurences.add(t.source.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um junction state esta correto
+operation StateMachine isJunctionOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.target.type.name.asString() == "Pseudostate"){
+  			if(t.target.kind.asString()  == "junction"){
+  				occurences.add(t.target.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um fork state esta correto
+operation StateMachine isForkOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.source.type.name.asString() == "Pseudostate"){
+  			if(t.source.kind.asString()  == "fork"){
+  				occurences.add(t.source.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+//verfica se um join state esta correto
+operation StateMachine isJoinOk() : Boolean {
+
+	var regions = self.regions;
+	var transitions : Sequence = Sequence{};
+	var occurences : Sequence = Sequence{};
+	var numOccurences = new Map;
+	
+	for(r : Region in regions){
+  		transitions.addAll(r.transitions);
+  	}
+  	
+  	for(t : Transition in transitions){
+  		
+  		if(t.target.type.name.asString() == "Pseudostate"){
+  			if(t.target.kind.asString()  == "join"){
+  				occurences.add(t.target.id);
+  			}
+  		}
+  	}
+  	
+  	
+  	for(i in occurences){
+  		if(not numOccurences.containsKey(i)){
+  			numOccurences.put(i, 1);
+  		}else{
+  			numOccurences.put(i, numOccurences.get(i) + 1);
+  		}
+  	}
+  	
+  	for(j in numOccurences.keySet()){
+  		if(numOccurences.get(j) < 2){
+  			return false;
+  		}
+  	}
+	
+	return true;
+}
+
+context Class {
+	
+	//verifica se classes não estáticas possuem operações estáticas
+	constraint AbstractOperationInNonAbstractClass {
+	
+		check: self.abstractOperationInNonAbstractClass() 
+
+		message: "Classe " + self.name + " não é abstrata mas possui operações abstratas."
+	
+	}
+	
+	//verifica se existe profundidade de herança superior a 1
+	critique ExcedesheritageDepth {
+	
+		check: self.heritageDepth() < 2
+
+		message: "Classe " + self.name + " possui uma profundidade de herança superior a 1."
+	
+	}
+	
+	//verifica que uma classe não possui um atributo do tipo classe filha
+	constraint FatherWithChildInAttributes {
+	
+		check: self.fatherWithChildOperationInAtrributes()
+
+		message: "Classe " + self.name + " possui um atributo com tipo referente a uma classe extendida a partir desta."
+	
+	}
+	
+	//verifica que uma classe não possui uma operação com um parâmetro do tipo classe filha
+	constraint FatherWithChildInOpParameters {
+	
+		check: self.fatherWithChildOperationInOpParameters()
+
+		message: "Classe " + self.name + " possui um parâmetro de uma operação com tipo referente a uma classe extendida a partir desta."
+	
+	}
+	
+
+}
+
+//Verifica que não existem classes com nomes repetidos
+	constraint RepeatedName {
+	
+		check: repeatedNameOperation()
+
+		message: "Existem classes com nomes repetidos no mesmo package"
+	
+	}
+
+
+//operacao que verfica que classes não estáticas possuem operações estáticas
+operation Class abstractOperationInNonAbstractClass() {
+ if(self.isAbstract == false){
+ 	var operations = self.operations;
+ 	for(o : Operation in operations){
+ 		if(o.isAbstract){
+ 			return false;
+ 		}
+ 		
+ 	}
+ 	
+ }
+ return true;
+}
+
+//operacao que devolve profundidade de herança
+@cached
+operation Class heritageDepth() : Integer {
+  if (self.generalization.size() == 0 or not (self.type.instanceClass == "org.eclipse.uml2.uml.Class")) {
+    return 0;
+  }
+  else {
+    return 1 + self.generalization.get(0).general.heritageDepth();
+  }
+}
+
+operation Class fatherWithChildOperationInAtrributes(){
+
+	var name = self.name;
+	if(self.generalization.size > 0){
+		var father = self.generalization.get(0).general;
+		
+		for(a in self.attributes){
+		if(a.type != null and a.type.qualifiedName.contains(name)){
+			return false;
+			
+		}
+			
+		}
+		
+	}
+	
+	
+	return true;
+}
+
+operation Class fatherWithChildOperationInOpParameters(){
+	
+	var name = self.name;
+	if(self.generalization.size > 0){
+		var father = self.generalization.get(0).general;
+		
+		for(a in self.operations){
+			for(o in a.ownedparameters){
+				if(o.type.qualifiedName.contains(name)){
+					return false;
+			
+				}
+			}
+			
+		}
+		
+	}
+	
+	
+	return true;
+}
+
+operation repeatedNameOperation() : Boolean{
+	
+	var setName = new Set();
+	var listName = new List();
+	
+	for(c : Class in Class.getAllOfType()){
+		setName.add(c.name);
+		listName.add(c.name);
+	}
+	
+	if(setName.size != listName.size){
+		return false;
+	}
+	
+	
+	
+	
+	return true;
+}
+
+
+
+
+
+
+
+
+	

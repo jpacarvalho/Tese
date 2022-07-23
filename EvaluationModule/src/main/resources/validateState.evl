@@ -5,7 +5,7 @@ context StateMachine {
 	
 		check: self.name != null and self.name.trim() != ""
 
-		message: "Atividade com nome vazio."
+		message: "Estado com nome vazio."
 	
 	}
 	
@@ -90,14 +90,6 @@ context StateMachine {
 	
 	}
 	
-
-   /* constraint Test {
-	
-		check: self.test()
-
-		message: "Diagrama de Estados " + self.name + " possui um pseudoestado \"join\" com um número de transições incorreto."
-	
-	}*/
 
 }
 
@@ -366,9 +358,4 @@ operation StateMachine isJoinOk() : Boolean {
   	}
 	
 	return true;
-}
-
-
-operation StateMachine test() : Boolean{
-
 }

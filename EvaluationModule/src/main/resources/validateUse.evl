@@ -2,7 +2,7 @@
 
 context UseCase {
 
-	//verifica se um use case tem o nome vazio
+	//verifica se um use case tem o nome vazio - 1
 	constraint UseCaseEmptyName {
 	
 		check: self.name != null and self.name.trim() != ""
@@ -10,8 +10,11 @@ context UseCase {
 		message: "Caso de Uso com nome vazio."
 	
 	}
+}
 	
-	//verifica se um use case profundidade de include superior a 3
+context UseCase {
+	
+	//verifica se um use case profundidade de include superior a 3 - 13
 	critique NotIncludeInInclude {
 	
 		check: self.includedepth() < 3
@@ -19,6 +22,21 @@ context UseCase {
 		message: "Caso de Uso " + self.name + " possui uma profundidade de include superior a 2."
 	
 	}
+	
+}
+
+//operacao que devolve profundidade de include
+@cached
+operation UseCase includedepth() : Integer {
+  if (self.include.size() == 0) {
+    return 0;
+  }
+  else {
+    return 1 + self.include.get(0).addition.includedepth();
+  }
+}
+	
+/*context UseCase {
 	
 	//verifica se o use case tem um verbo no nome
 	constraint HasUseCaseNounAndVerb {
@@ -29,7 +47,7 @@ context UseCase {
 	
 	}
 
-}
+}*/
 
 context Actor {
 
@@ -53,27 +71,6 @@ constraint ActorsWithoutAssociation {
 	
 }
 
-//verifica se estão a ser usados links use em contexto de use case
-constraint DoesUseCasehasVerbInName {
-	
-	check: Usage.getAllOfType() == 0
-
-	message: "Links Usage inválidos no contexto de Use Cases."
-	
-}
-
-
-//operacao que devolve profundidade de include
-@cached
-operation UseCase includedepth() : Integer {
-  if (self.include.size() == 0) {
-    return 0;
-  }
-  else {
-    return 1 + self.include.get(0).addition.includedepth();
-  }
-}
-
 //operacao que devolve atores sem associacao
 operation actorsWithNoAssociation() : Set {
   	var allActors = Actor.getAllOfType().asSet();
@@ -82,19 +79,32 @@ operation actorsWithNoAssociation() : Set {
 	var actorsWithAssocitation = new Set();
 
 	for(a : Association in associations){
-		var end1 = a.ownedEnd.get(0).type;
-		if(end1.isTypeOf(Actor)){
-			actorsWithAssocitation.add(end1);
-		}
+		if(a.ownedEnd.size > 0){
+			var end1 = a.ownedEnd.get(0).type;
+			if(end1.isTypeOf(Actor)){
+				actorsWithAssocitation.add(end1);
+			}
 	
-		var end2 = a.ownedEnd.get(1).type;
-		if(end2.isTypeOf(Actor)){
-			actorsWithAssocitation.add(end2);
+			if(a.ownedEnd.size > 1){
+				var end2 = a.ownedEnd.get(1).type;
+				if(end2.isTypeOf(Actor)){
+					actorsWithAssocitation.add(end2);
+				}
+			}
 		}
 	
 	}
 	
 	return allActors.excludingAll(actorsWithAssocitation);
+}
+
+//verifica se estão a ser usados links use em contexto de use case
+constraint DoesUseCasehasVerbInName {
+	
+	check: Usage.getAllOfType() == 0
+
+	message: "Links Usage inválidos no contexto de Use Cases."
+	
 }
 
 operation UseCase checkNameVerbNoun() : Boolean {
@@ -106,7 +116,7 @@ operation UseCase checkNameVerbNoun() : Boolean {
 	
 	for(s : String in splitedName){
 	
-		var url =  new Native("java.net.URL")("https://www.dictionaryapi.com/api/v3/references/thesaurus/json/" + s + "?key=4c831ba9-3885-42e6-8712-ddb5149b7534");
+		var url =  new Native("java.net.URL")("https://www.dictionaryapi.com/api/v3/references/thesaurus/json/" + s.println() + "?key=4c831ba9-3885-42e6-8712-ddb5149b7534");
 		
         // Open a connection(?) on the URL(??) and cast the response(???)
         var connection : Native("java.net.HttpURLConnection") = url.openConnection();
@@ -123,9 +133,9 @@ operation UseCase checkNameVerbNoun() : Boolean {
        	var Collectors = Native("java.util.stream.Collectors");
        	var result : String = bufferedReader.lines().collect(Collectors.joining("\n"));
          
-       	if("\"fl\":verb".isSubstringOf(result)){
+       	if("\"fl\":\"verb".isSubstringOf(result)){
        		verbInSentence = true;
-       	}else if("\"fl\":noun".isSubstringOf(result)){
+       	}else if("\"fl\":\"noun".isSubstringOf(result)){
        		nounInSentence = true;
        	}
       }

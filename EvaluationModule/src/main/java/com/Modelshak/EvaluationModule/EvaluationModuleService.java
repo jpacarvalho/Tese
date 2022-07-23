@@ -39,7 +39,7 @@ public class EvaluationModuleService {
 
         JSONObject obj = new JSONObject();
 
-        getFileFrombucket(filename);
+        //getFileFrombucket(filename);
 
         List<Metric> metrics = new ArrayList<>();
         List<ValidationResult> validations = new ArrayList<>();
@@ -54,7 +54,7 @@ public class EvaluationModuleService {
         try {
             validations = evaluateEvl(filename);
         } catch (Exception e) {
-            logger.error("Nao foi possivel efetuar o calculo de metricas para o modelo {}", filename);
+            logger.error("Nao foi possivel efetuar o calculo de validacoes para o modelo {}", filename);
         }
 
         List<Validation> errors = new ArrayList<>();
@@ -74,7 +74,7 @@ public class EvaluationModuleService {
         logger.info("Número de warnings no modelo {}: {}", filename, warnings.size());
 
         File file = new File(filename);
-        file.delete();
+        //file.delete();
 
         return obj;
     }
@@ -83,8 +83,8 @@ public class EvaluationModuleService {
         List<Metric> metrics = new ArrayList<>();
 
         for (EolEnum eolfile : EolEnum.values()) {
-            List<Metric> singleResult = evaluateSingleEol(filename, eolfile.getPath());
-            metrics.addAll(singleResult);
+//            List<Metric> singleResult = evaluateSingleEol(filename, eolfile.getPath());
+ //           metrics.addAll(singleResult);
         }
 
         return metrics;
@@ -138,9 +138,11 @@ public class EvaluationModuleService {
             if (constraint.getConstraint().isCritique()){
                 validationResult.getWarnings().add(
                         new Validation(null, false, constraint.getMessage()));
+                System.out.println(constraint.getMessage());
             }else{
                 validationResult.getErrors().add(
                         new Validation(null, false, constraint.getMessage()));
+                System.out.println(constraint.getMessage());
             }
         }
 
